@@ -31,6 +31,9 @@ import jobit from "./jobit.png";
 import tripguide from "./tripguide.png";
 
 import webhog from "./web-hog.png";
+import knack from "./company/knack.jpg";
+import bny from "./company/bny.png";
+import bb from "./company/bb.png"
 
 export {
   logo,
@@ -62,4 +65,7 @@ export {
   jobit,
   tripguide,
   webhog,
+  knack,
+  bny,
+  bb,
 };

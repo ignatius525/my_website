@@ -31,7 +31,7 @@ const Navbar = () => {
           h-9 object-contain'/>
           <p className="text-white text-[18px]
           font-bold cursor-pointer flex">Ignat Miagkov &nbsp; 
-          <span className='sm:block hidden'> | Bloomberg LP
+          <span className='sm:block hidden'> | Software Engineer
           </span></p>
         </Link>
         <ul className='list-none hidden sm:flex
