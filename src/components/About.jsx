@@ -48,9 +48,8 @@ const About = () => {
         className='mt-4 text-secondary text-[17px]
         max-w-3xl leading-[30px]'
       >
-        Are you kidding me? This is a really long block of text that
-        I am working on completing. I will include this block of text as
-        a constant.
+        I am currently a Software Engineer working in the Fixed Income Trading at Bloomberg.
+        This website is currently still not quite finished but shows some cool things I learned.
       </motion.p>
 
       <div className='mt-20 flex flex-wrap gap-10'>

@@ -5,7 +5,7 @@ import { OrbitControls, Preload, useGLTF } from '@react-three/drei';
 import CanvasLoader from '../Loader';
 
 const Computers = ({ isMobile }) => {
-  const computer = useGLTF('marcus_aurelius/scene.gltf')
+  const computer = useGLTF('planet/scene.gltf')
 
   return (
     <mesh>
@@ -21,8 +21,8 @@ const Computers = ({ isMobile }) => {
         shadow-mapSize={1024}
       />
       <primitive object={computer.scene} 
-       scale={isMobile ? 2 : 5}
-       position={isMobile ? [0, 0, 0] : [0, 0, 0]}
+       scale={isMobile ? .5 : 1.5}
+       position={isMobile ? [1, 2, 0] : [4, 2, 0]}
        rotation={[-0.01, -0.2, -0.1]} 
       />
     </mesh>
@@ -51,12 +51,13 @@ const ComputersCanvas = () => {
     <Canvas
       frameloop="demand"
       shadows
-      camera={{ position: [20, 3, 5], fov: 25}}
+      camera={{ position: [10, 0, 5], fov: 50}}
       gl={{ preserveDrawingBuffer: true }}>
         <Suspense fallback={<CanvasLoader />}>
           <OrbitControls 
-           enableZoom={false} 
-           maxPolarAngle={Math.PI / 2}
+           enableZoom={false}
+           enablePan={false} 
+           maxPolarAngle={-Math.PI / 2}
            minPolarAngle={Math.PI / 2}
           />
           <Computers isMobile={isMobile}/>
