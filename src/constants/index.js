@@ -26,6 +26,8 @@ import {
     knack,
     bny,
     bb,
+    cpp,
+    py
   } from "../assets";
   
   export const navLinks = [
@@ -64,12 +66,12 @@ import {
   
   const technologies = [
     {
-      name: "HTML 5",
-      icon: html,
+      name: "CPP",
+      icon: cpp,
     },
     {
-      name: "CSS 3",
-      icon: css,
+      name: "PY",
+      icon: py,
     },
     {
       name: "JavaScript",

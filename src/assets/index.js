@@ -20,6 +20,8 @@ import redux from "./tech/redux.png";
 import tailwind from "./tech/tailwind.png";
 import typescript from "./tech/typescript.png";
 import threejs from "./tech/threejs.svg";
+import cpp from "./tech/cpp.png";
+import py from "./tech/python.svg";
 
 import meta from "./company/meta.png";
 import shopify from "./company/shopify.png";
@@ -33,7 +35,7 @@ import tripguide from "./tripguide.png";
 import webhog from "./web-hog.png";
 import knack from "./company/knack.jpg";
 import bny from "./company/bny.png";
-import bb from "./company/bb.png"
+import bb from "./company/bb.png";
 
 export {
   logo,
@@ -68,4 +70,6 @@ export {
   knack,
   bny,
   bb,
+  cpp,
+  py
 };

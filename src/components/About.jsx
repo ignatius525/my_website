@@ -48,7 +48,7 @@ const About = () => {
         className='mt-4 text-secondary text-[17px]
         max-w-3xl leading-[30px]'
       >
-        I am currently a Software Engineer working in the Fixed Income Trading at Bloomberg.
+        I am currently a Software Engineer working in Fixed Income Trading at Bloomberg.
         This website is currently still not quite finished but shows some cool things I learned.
       </motion.p>
 
