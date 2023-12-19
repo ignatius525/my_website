@@ -13,7 +13,6 @@ import {
     nodejs,
     mongodb,
     git,
-    figma,
     docker,
     meta,
     starbucks,
@@ -27,7 +26,12 @@ import {
     bny,
     bb,
     cpp,
-    py
+    py,
+    spring,
+    grafana,
+    kafka,
+    jenkins,
+    splunk
   } from "../assets";
   
   export const navLinks = [
@@ -74,6 +78,14 @@ import {
       icon: py,
     },
     {
+      name: "Spring",
+      icon: spring,
+    },
+    {
+      name: "docker",
+      icon: docker,
+    },
+    {
       name: "JavaScript",
       icon: javascript,
     },
@@ -86,37 +98,26 @@ import {
       icon: reactjs,
     },
     {
-      name: "Redux Toolkit",
-      icon: redux,
-    },
-    {
-      name: "Tailwind CSS",
-      icon: tailwind,
-    },
-    {
-      name: "Node JS",
-      icon: nodejs,
-    },
-    {
-      name: "MongoDB",
-      icon: mongodb,
-    },
-    {
-      name: "Three JS",
-      icon: threejs,
-    },
-    {
       name: "git",
       icon: git,
     },
     {
-      name: "figma",
-      icon: figma,
+      name: "Grafana",
+      icon: grafana,
     },
     {
-      name: "docker",
-      icon: docker,
+      name: "Kafka",
+      icon: kafka,
     },
+    {
+      name: "Jenkins",
+      icon: jenkins,
+    },
+    {
+      name: "splunk",
+      icon: splunk,
+    },
+    
   ];
   
   const experiences = [
@@ -127,10 +128,10 @@ import {
       iconBg: "#FFFFFF",
       date: "May 2021 - August 2021",
       points: [
-        "Developing and maintaining web applications using React.js and other related technologies.",
-        "Collaborating with cross-functional teams including designers, product managers, and other developers to create high-quality products.",
-        "Implementing responsive design and ensuring cross-browser compatibility.",
-        "Participating in code reviews and providing constructive feedback to other developers.",
+        "Created micro-service event driven architecture to automate data ETL and analysis",
+        "Developed service layer application with automated task queue for search utilization",
+        "Performed first-look on large ($>$500 GB/day) data sets to optimize search task definition",
+        "Integrated service layer into project with Kafka, Redis to communicate with orchestrator",
       ],
     },
     {
@@ -140,10 +141,10 @@ import {
       iconBg: "#E6DEDD",
       date: "May 2022 - August 2022",
       points: [
-        "Developing and maintaining web applications using React.js and other related technologies.",
-        "Collaborating with cross-functional teams including designers, product managers, and other developers to create high-quality products.",
-        "Implementing responsive design and ensuring cross-browser compatibility.",
-        "Participating in code reviews and providing constructive feedback to other developers.",
+        "Worked in Agile Environment to build transaction optimization and accounting application responsible for 3 trillion dollars of assets",
+        "Developed reactive broker enrichment micro-service to receive trades through Kafka and automate new broker registration within the transaction manager",
+        "Completed pre-release checks and deploy production services using in-house app engine",
+        "Automated logging for broker enrichment micro-service by posting sub-processes to Oracle Database",
       ],
     },
     {
@@ -153,10 +154,10 @@ import {
       iconBg: "#000000",
       date: "February 2023 - Present",
       points: [
-        "Developing and maintaining web applications using React.js and other related technologies.",
-        "Collaborating with cross-functional teams including designers, product managers, and other developers to create high-quality products.",
-        "Implementing responsive design and ensuring cross-browser compatibility.",
-        "Participating in code reviews and providing constructive feedback to other developers.",
+        "Developing full-stack applications for bids/offers list trading (BOLT) platform, executing over \$20 billion in traded assets every day",
+        "Creating new feature for municipal bonds trading workflow for client to easily manage receiving dealers for quotes",
+        "Creating new APIs to enable user entitlement features across all fixed income platforms",
+        "Conducting integration, load testing of individual services using Docker, Locust to identify potential bottlenecks",
       ],
     },
     // {

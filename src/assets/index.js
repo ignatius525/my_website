@@ -9,7 +9,6 @@ import close from "./close.svg";
 
 import css from "./tech/css.png";
 import docker from "./tech/docker.png";
-import figma from "./tech/figma.png";
 import git from "./tech/git.png";
 import html from "./tech/html.png";
 import javascript from "./tech/javascript.png";
@@ -22,6 +21,11 @@ import typescript from "./tech/typescript.png";
 import threejs from "./tech/threejs.svg";
 import cpp from "./tech/cpp.png";
 import py from "./tech/python.svg";
+import spring from "./tech/spring.png"
+import grafana from "./tech/grafana.jpg"
+import kafka from "./tech/kafka.png"
+import jenkins from "./tech/jenkins.jpg"
+import splunk from "./tech/splunk.jpg"
 
 import meta from "./company/meta.png";
 import shopify from "./company/shopify.png";
@@ -48,7 +52,6 @@ export {
   close,
   css,
   docker,
-  figma,
   git,
   html,
   javascript,
@@ -71,5 +74,10 @@ export {
   bny,
   bb,
   cpp,
-  py
+  py,
+  spring,
+  grafana,
+  kafka,
+  jenkins,
+  splunk
 };
