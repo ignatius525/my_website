@@ -1,10 +1,11 @@
 import { BrowserRouter } from 'react-router-dom';
 
 import { About, Contact, Experience, Feedbacks,
-Hero, Navbar, Tech, Works, StarsCanvas} from './components';
+Hero, Navbar, Tech, Works, StarsCanvas, OpenGraph} from './components';
 const App = ()  => {
   return (
     <BrowserRouter>
+      <OpenGraph/>
       <div className="relative z-0 bg-primary">
         <div className="bg-city-pattern bg-cover
         bg-no-repeat bg-center">
