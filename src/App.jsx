@@ -5,7 +5,7 @@ Hero, Navbar, Tech, Works, StarsCanvas, OpenGraph} from './components';
 const App = ()  => {
   return (
     <BrowserRouter>
-      <OpenGraph/>
+      {/* <OpenGraph/> */}
       <div className="relative z-0 bg-primary">
         <div className="bg-city-pattern bg-cover
         bg-no-repeat bg-center">
