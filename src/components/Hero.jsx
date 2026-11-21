@@ -8,7 +8,7 @@ const Hero = () => {
     <section className="relative w-full h-screen mx-auto overflow-hidden">
       <PastureCanvas />
 
-      {/* pointer-events-none so the mouse reaches the canvas for parallax */}
+      {/* pointer-events-none so the mouse reaches the canvas (parallax + click-to-herd) */}
       <div className={`${styles.paddingX} absolute inset-0 top-[120px]
       max-w-7xl mx-auto flex flex-row items-start gap-5 z-10
       pointer-events-none`}>
@@ -27,9 +27,10 @@ const Hero = () => {
         </div>
       </div>
 
+      {/* the row is click-through so clicks on the near field reach the canvas */}
       <div className='absolute xs:bottom-10 bottom-32 w-full flex
-      justify-center items-center z-10'>
-        <a href="#about" aria-label="Scroll to About">
+      justify-center items-center z-10 pointer-events-none'>
+        <a href="#about" aria-label="Scroll to About" className="pointer-events-auto">
           <div className='w-[32px] h-[60px] pixel-frame bg-night/60
           flex justify-center items-start p-2'>
             <motion.div

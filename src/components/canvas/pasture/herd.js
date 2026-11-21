@@ -15,7 +15,9 @@ const PEN_INNER = { x0: PEN.x0 + 0.8, x1: PEN.x1 - 0.8, z0: PEN.z0 + 0.8, z1: PE
 // Solid area around the pen fence that dogs and shepherds may not enter.
 const PEN_BLOCK = { x0: PEN.x0 - 0.8, x1: PEN.x1 + 0.8, z0: PEN.z0 - 0.8, z1: PEN.z1 + 0.8 };
 const LANTERN = { x: PEN.x0 - 0.5, z: PEN.gateZ1 + 1.2, r: 0.7 };
-const ROAM = { x0: -11.5, x1: 12.5, z0: -11, z1: 5 }; // where dogs may run (on screen)
+const ROAM = { x0: -11.5, x1: 12.5, z0: -11, z1: 5 }; // where dogs roam on their own
+// Clicked spots may be nearer the camera (portrait phones show ground up to z ~13).
+const CMD_ROAM = { ...ROAM, z1: 9 };
 const SHEPHERD_ZONE = { x0: -10, x1: 1.5, z0: -4.5, z1: 4 };
 // Waypoints just outside the pen's corners, used to walk around it.
 const CORNERS = [
@@ -89,19 +91,41 @@ const segmentHitsPen = (ax, az, bx, bz) => {
   return false;
 };
 
-/** Where to head next: the target itself, or a pen corner to route around the fence. */
-const waypoint = (p, tx, tz) => {
-  if (!segmentHitsPen(p.x, p.z, tx, tz)) return [tx, tz];
+/**
+ * Where to head next: the target itself, or a pen corner to route around the
+ * fence. A chosen corner is kept briefly (p.wpHold) so near-ties between two
+ * corners can't make the character flip back and forth.
+ */
+const waypoint = (p, tx, tz, dt) => {
+  if (!segmentHitsPen(p.x, p.z, tx, tz)) {
+    p.wpHold = 0;
+    return [tx, tz];
+  }
+  if (p.wpHold > 0 && p.wp && Math.hypot(p.wp[0] - p.x, p.wp[1] - p.z) > 0.3) {
+    p.wpHold -= dt;
+    return p.wp;
+  }
   let best = null;
   let bestCost = Infinity;
   for (const [cx, cz] of CORNERS) {
     if (Math.hypot(cx - p.x, cz - p.z) < 0.3 || segmentHitsPen(p.x, p.z, cx, cz)) continue;
-    const cost = Math.hypot(cx - p.x, cz - p.z) + Math.hypot(tx - cx, tz - cz);
+    // Cost of the rest of the trip too: if the corner can't see the target,
+    // it must go via an adjacent corner (adjacent = shares exactly one axis).
+    const rest = segmentHitsPen(cx, cz, tx, tz)
+      ? Math.min(
+          ...CORNERS.filter(([ax, az]) => (ax === cx) !== (az === cz)).map(
+            ([ax, az]) => Math.hypot(ax - cx, az - cz) + Math.hypot(tx - ax, tz - az)
+          )
+        )
+      : Math.hypot(tx - cx, tz - cz);
+    const cost = Math.hypot(cx - p.x, cz - p.z) + rest;
     if (cost < bestCost) {
       bestCost = cost;
       best = [cx, cz];
     }
   }
+  p.wp = best;
+  p.wpHold = 0.5;
   return best || [tx, tz];
 };
 
@@ -110,7 +134,7 @@ const waypoint = (p, tx, tz) => {
  * any `obstacles` ({x, z}) in front. Returns the distance left to the target.
  */
 const steerTo = (p, tx, tz, speed, dt, turnRate = 6, obstacles = []) => {
-  const [wx, wz] = waypoint(p, tx, tz);
+  const [wx, wz] = waypoint(p, tx, tz, dt);
   const dx = wx - p.x;
   const dz = wz - p.z;
   const d = Math.hypot(dx, dz);
@@ -308,18 +332,20 @@ const updateSheep = (b, dt, w) => {
   // Dogs: scatter when one gets close, or from further away when it barks.
   if (!b.penned) {
     for (const d of w.dogs) {
-      const r = d.barking ? 4.8 : 2.4;
+      const commanded = d.mode === "command";
+      const r = d.barking ? 4.8 : commanded ? 4 : 2.4;
       const dx = b.x - d.x;
       const dz = b.z - d.z;
       const dist = Math.hypot(dx, dz) || 1;
       if (dist < r) {
         b.mode = "flee";
-        b.speed = d.barking ? 2.0 : 1.6;
+        b.speed = d.barking ? 2.0 : commanded ? 1.8 : 1.6;
         b.timer = Math.max(b.timer, 1.2);
         b.hop = 0;
         b.leader = null;
-        b.tx = clamp(b.x + (dx / dist) * 3, b.bounds.x0, b.bounds.x1);
-        b.tz = clamp(b.z + (dz / dist) * 3, b.bounds.z0, b.bounds.z1);
+        // Aim a little inside the field so fleeing sheep don't pile up at its edge.
+        b.tx = clamp(b.x + (dx / dist) * 3, b.bounds.x0 + 1, b.bounds.x1 - 1);
+        b.tz = clamp(b.z + (dz / dist) * 3, b.bounds.z0 + 1, b.bounds.z1 - 1);
       }
     }
   }
@@ -481,6 +507,22 @@ const updateDog = (d, dt, w) => {
         if (d.rnd() < 0.4) startBarking(d, 1 + Math.floor(d.rnd() * 2));
       }
       break;
+    case "command": {
+      // Sent by a click: sprint to a flank of the clicked spot, then circle it.
+      const cmd = w.command;
+      const r = d === w.dogs[0] ? 2.6 : 3.4;
+      if (d.cmdPhase === "herd") d.angle += (d.dir * 3 * dt) / r;
+      const p = safePoint(cmd.x + Math.cos(d.angle) * r, cmd.z + Math.sin(d.angle) * r);
+      const left = steerTo(d, clamp(p.x, CMD_ROAM.x0, CMD_ROAM.x1), clamp(p.z, CMD_ROAM.z0, CMD_ROAM.z1),
+        d.cmdPhase === "go" ? d.speed : 3.4, dt, 8, free);
+      if (d.cmdPhase === "go" && left < 0.8) {
+        d.cmdPhase = "herd";
+        startBarking(d, 2);
+      } else if (d.cmdPhase === "herd" && d.barksLeft === 0 && d.rnd() < dt * 0.5) {
+        startBarking(d, 1);
+      }
+      break;
+    }
     default: // sit, watch, bark: stay put, keep an eye on the flock
       faceToward(d, c.x, c.z, dt);
       break;
@@ -506,7 +548,7 @@ const updateDog = (d, dt, w) => {
   for (const s of w.shepherds) pushFrom(d, s.x, s.z, 1.0, 1, 4 * dt);
   pushFrom(d, LANTERN.x, LANTERN.z, LANTERN.r);
   pushOutOfBox(d, PEN_BLOCK);
-  clampTo(d, ROAM);
+  clampTo(d, CMD_ROAM); // normal modes keep their targets inside ROAM; commands may go nearer
 
   animateGait(d, dt, 3, 4.5);
 };
@@ -537,7 +579,7 @@ const chooseShepherdMode = (s, w) => {
     // Raise the crook; the nearest dog that isn't sitting sprints out.
     s.timer = 1.8;
     const dog = w.dogs
-      .filter((d) => d.mode !== "sit")
+      .filter((d) => d.mode !== "sit" && d.mode !== "command")
       .sort((a, b) => Math.hypot(a.x - s.x, a.z - s.z) - Math.hypot(b.x - s.x, b.z - s.z))[0];
     if (dog) {
       dog.forced = "dash";
@@ -576,6 +618,53 @@ const updateShepherd = (s, dt, w) => {
   clampTo(s, { x0: SHEPHERD_ZONE.x0 - 1, x1: SHEPHERD_ZONE.x1 + 1, z0: SHEPHERD_ZONE.z0 - 1, z1: SHEPHERD_ZONE.z1 + 1 });
 
   animateGait(s, dt, 0.9, 7);
+};
+
+/* ------------------------------------------------------------ commands -- */
+
+const COMMAND_TIME = 7; // seconds the dogs keep working a clicked spot
+
+/**
+ * Send both dogs to herd around (x, z), e.g. where the visitor clicked.
+ * The point is clamped onto the field and outside the pen. Each call
+ * redirects the dogs; after COMMAND_TIME without a new call they return
+ * to their own routines. Returns the point actually used.
+ */
+export const commandHerd = (w, x, z) => {
+  const p = safePoint(clamp(x, CMD_ROAM.x0, CMD_ROAM.x1), clamp(z, CMD_ROAM.z0, CMD_ROAM.z1));
+  const prev = w.command;
+  w.command = { x: p.x, z: p.z, at: w.time, id: (prev?.id || 0) + 1 };
+
+  // A repeat click near the current spot just extends the job, so the dogs
+  // don't spin around and restart their approach.
+  if (prev && Math.hypot(p.x - prev.x, p.z - prev.z) < 2 && w.dogs.every((d) => d.mode === "command")) {
+    w.dogs.forEach((d) => (d.timer = COMMAND_TIME));
+    return p;
+  }
+
+  // Dogs approach on opposite flanks (relative to the flock) for a pincer.
+  const c = centroid(w.sheep.filter((s) => !s.penned));
+  const base = Math.atan2(c.z - p.z, c.x - p.x);
+  w.dogs.forEach((d, i) => {
+    d.mode = "command";
+    d.cmdPhase = "go";
+    d.timer = COMMAND_TIME;
+    d.angle = base + (i === 0 ? Math.PI / 2 : -Math.PI / 2);
+    d.dir = i === 0 ? 1 : -1;
+    d.speed = range(d.rnd, 4.6, 5.4);
+    d.barksLeft = 0;
+    d.forced = null;
+  });
+
+  // The nearest idle shepherd raises the crook, as if giving the command.
+  const s = w.shepherds
+    .filter((h) => h.mode !== "walk")
+    .sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
+  if (s) {
+    s.mode = "signal";
+    s.timer = 1.4;
+  }
+  return p;
 };
 
 /* ---------------------------------------------------------------- tick -- */
