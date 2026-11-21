@@ -1,20 +1,16 @@
-import { About, Experience, Hero, Navbar, Tech } from './components';
+import { About, Experience, Footer, Hero, Navbar, Tech } from './components';
 const App = ()  => {
   return (
     <>
       {/* <OpenGraph/> */}
       <div className="relative z-0 bg-primary">
-        <div className="bg-city-pattern bg-cover
-        bg-no-repeat bg-center">
-          <Navbar />
-          <Hero />
-        </div>
-        <About />
-        <Experience />
-        {/* pb-16: bottom spacing while Contact is disabled (Tech has no SectionWrapper) */}
-        <div className="pb-16">
+        <Navbar />
+        <Hero />
+        <main className="night-sky">
+          <About />
+          <Experience />
           <Tech />
-        </div>
+        </main>
         {/* <Works /> */}
         {/* <Feedbacks /> */}
         {/* Contact (EmailJS form) is disabled for now. Before re-enabling it:
@@ -25,6 +21,7 @@ const App = ()  => {
           <Contact />
           <StarsCanvas />
         </div> */}
+        <Footer />
       </div>
     </>
   )

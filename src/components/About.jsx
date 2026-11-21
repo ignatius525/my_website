@@ -1,36 +1,33 @@
-import React from 'react';
 import Tilt from 'react-parallax-tilt';
 import { motion } from 'framer-motion';
 
 import { styles } from '../styles';
 import { services } from '../constants';
-import { fadeIn, textVariant} from '../utils/motion';
+import { fadeIn, textVariant } from '../utils/motion';
 import { SectionWrapper } from '../hoc';
+import { PixelSprite } from './PixelArt';
 
-const ServiceCard = ({ index, title, icon }) => {
+const ServiceCard = ({ index, title, sprite }) => {
   return (
-    <Tilt className='xs:w-[250px] w-full'>
+    <Tilt
+      className='xs:w-[250px] w-full'
+      tiltMaxAngleX={12}
+      tiltMaxAngleY={12}
+      transitionSpeed={450}
+    >
       <motion.div
         variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
-        className="w-full green-pink-gradient p-[1px]
-        rounded-[20px] shadow-card"
+        className="w-full pixel-frame bg-tertiary shadow-card"
       >
         <div
-          options={{
-            max: 45,
-            scale: 1,
-            speed: 450
-          }}
-          className='bg-tertiary rounded-[20px] py-5 px-12 min-h-[280px]
-          flex justify-evenly items-center flex-col'
+          className='py-5 px-10 min-h-[260px] flex justify-evenly
+          items-center flex-col gap-4'
         >
-          <img src={icon} alt={title}
-           className='w-16 h-16 object-contain' />
-          <h3 className='text-white text-[20px] font-bold
-          text-center'>{title}</h3>
+          <PixelSprite name={sprite} size={80} />
+          <h3 className='text-white-100 text-[22px] font-semibold
+          text-center leading-tight'>{title}</h3>
         </div>
       </motion.div>
-
     </Tilt>
   )
 }
@@ -45,14 +42,14 @@ const About = () => {
 
       <motion.p
         variants={fadeIn("", "", 0.1, 1)}
-        className='mt-4 text-secondary text-[17px]
-        max-w-3xl leading-[30px]'
+        className='mt-6 text-secondary text-[19px]
+        max-w-3xl leading-[32px]'
       >
         I am currently a Software Engineer working in Fixed Income Trading at Bloomberg.
         This website is currently still not quite finished but shows some cool things I learned.
       </motion.p>
 
-      <div className='mt-20 flex flex-wrap gap-10'>
+      <div className='mt-20 flex flex-wrap gap-12'>
         {services.map((service, index) => (
           <ServiceCard key={service.title} index={index}
           {...service} />

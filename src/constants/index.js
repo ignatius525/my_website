@@ -1,8 +1,4 @@
 import {
-    mobile,
-    backend,
-    creator,
-    web,
     javascript,
     typescript,
     html,
@@ -51,21 +47,22 @@ import {
   ];
   
   const services = [
+    // sprite: a key of SPRITES in src/components/PixelArt.jsx
     {
       title: "Full Stack Developer",
-      icon: web,
+      sprite: "monitor",
     },
     {
       title: "C++ Developer",
-      icon: mobile,
+      sprite: "cpp",
     },
     {
       title: "Trading Systems",
-      icon: backend,
+      sprite: "candles",
     },
     {
       title: "Load Testing",
-      icon: creator,
+      sprite: "bolt",
     },
   ];
   

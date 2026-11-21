@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { 
   Decal, Float, OrbitControls, Preload, useTexture
@@ -16,7 +16,7 @@ const Ball = (props) => {
       <mesh castShadow receiveShadow scale={2.75}>
         <icosahedronGeometry args={[1,1]} />
         <meshStandardMaterial 
-          color={"#fff8eb"}
+          color={"#f6eac6"} // ball of wool
           polygonOffset
           polygonOffsetFactor={-5}
           flatShading
@@ -34,9 +34,13 @@ const Ball = (props) => {
 
 const BallCanvas = ({ icon }) => {
   return (
+    // Rendered at half resolution + .pixelated so it matches the pixel theme
+    <div className="w-full h-full pixelated">
     <Canvas
+      flat
+      dpr={0.5}
       frameloop="demand"
-      gl={{ preserveDrawingBuffer: true }}>
+      gl={{ preserveDrawingBuffer: true, antialias: false }}>
         <Suspense fallback={<CanvasLoader />}>
           <OrbitControls 
            enableZoom={false}
@@ -46,6 +50,7 @@ const BallCanvas = ({ icon }) => {
 
         <Preload all />
     </Canvas>
+    </div>
   )
 }
 

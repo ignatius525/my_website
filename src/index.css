@@ -1,4 +1,4 @@
-/* Poppins is self-hosted via @fontsource/poppins (imported in main.jsx) */
+/* Pixel fonts are self-hosted via @fontsource (imported in main.jsx) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,9 +7,16 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
   scroll-behavior: smooth;
   color-scheme: dark;
+}
+
+html,
+body {
+  /* set here (not on *) so elements can override it, e.g. font-pixel spans */
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  background-color: #1c1938;
+  color: #f6eac6;
 }
 
 .hash-span {
@@ -18,34 +25,52 @@
   display: block;
 }
 
-.black-gradient {
-  background: #000000; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to right,
-    #434343,
-    #000000
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to right,
-    #434343,
-    #000000
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+/* ---- Pixel-art utilities (palette from the LinkedIn banner) ---- */
+
+/* Hard drop shadow, like sprite text in a 16-bit game */
+.pixel-shadow {
+  text-shadow: 3px 3px 0 #15122b;
 }
 
-.violet-gradient {
-  background: #804dee;
-  background: linear-gradient(-90deg, #804dee 0%, rgba(60, 51, 80, 0) 100%);
-  background: -webkit-linear-gradient(
-    -90deg,
-    #804dee 0%,
-    rgba(60, 51, 80, 0) 100%
+/* Square frame with notched corners. Set --frame / --px to customize. */
+.pixel-frame {
+  --frame: #966636;
+  --px: 4px;
+  border-radius: 0;
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--frame),
+    0 var(--px) 0 0 var(--frame),
+    calc(-1 * var(--px)) 0 0 0 var(--frame),
+    var(--px) 0 0 0 var(--frame);
+}
+.pixel-frame-sun {
+  --frame: #ffc666;
+}
+.pixel-frame-plum {
+  --frame: #392854;
+}
+
+/* Hard-banded vertical bar: sun -> ember -> horizon -> fade */
+.sun-gradient {
+  background: linear-gradient(
+    to bottom,
+    #ffc666 0 22%,
+    #ff964e 22% 44%,
+    #ab5860 44% 66%,
+    #4f3260 66% 85%,
+    transparent 85%
   );
 }
 
-.green-pink-gradient {
-  background: "#00cea8";
-  background: linear-gradient(90.13deg, #00cea8 1.9%, #bf61ff 97.5%);
-  background: -webkit-linear-gradient(-90.13deg, #00cea8 1.9%, #bf61ff 97.5%);
+/* Night sky with a tiled field of pixel stars */
+.night-sky {
+  background-color: #1c1938;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' shape-rendering='crispEdges'%3E%3Cg fill='%23d8d0f0'%3E%3Crect x='12' y='20' width='2' height='2'/%3E%3Crect x='88' y='8' width='2' height='2' opacity='.6'/%3E%3Crect x='150' y='42' width='3' height='3'/%3E%3Crect x='210' y='18' width='2' height='2' opacity='.5'/%3E%3Crect x='40' y='96' width='2' height='2' opacity='.7'/%3E%3Crect x='120' y='120' width='2' height='2' opacity='.4'/%3E%3Crect x='196' y='104' width='2' height='2'/%3E%3Crect x='64' y='170' width='3' height='3' opacity='.8'/%3E%3Crect x='170' y='188' width='2' height='2' opacity='.5'/%3E%3Crect x='20' y='220' width='2' height='2' opacity='.6'/%3E%3Crect x='226' y='226' width='2' height='2' opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Mobile menu panel / dark tiles */
+.black-gradient {
+  background: #231d3f;
 }
 
 .orange-text-gradient {
@@ -200,4 +225,40 @@
       -1.8em 1.8em 0 0em rgba(255, 255, 255, 0.5),
       -2.6em 0em 0 0em rgba(255, 255, 255, 0.7), -1.8em -1.8em 0 0em #ffffff;
   }
+}
+/* 3D canvases rendered at low resolution: upscale with hard pixel edges */
+.pixelated canvas {
+  image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Experience timeline: a wooden fence rail instead of a thin white line */
+.vertical-timeline::before {
+  background: #966636 !important;
+  width: 6px !important;
+  box-shadow: 2px 0 0 #4e361e;
+}
+.vertical-timeline-element-icon img {
+  image-rendering: auto;
+}
+.experience-date {
+  color: #b9aed0;
+  font-size: 18px !important;
+  opacity: 1 !important;
+}
+
+/* Pixel grass edge (tufts) used on top of the footer pasture */
+.grass-edge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6' shape-rendering='crispEdges'%3E%3Crect x='4' y='0' width='1' height='1' fill='%23365a42'/%3E%3Crect x='12' y='0' width='1' height='1' fill='%23365a42'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23365a42'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%2342664e'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%23365a42'/%3E%3Crect x='12' y='1' width='1' height='1' fill='%23365a42'/%3E%3Crect x='13' y='1' width='1' height='1' fill='%2342664e'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23365a42'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%2342664e'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%2342664e'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%23365a42'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%2342664e'/%3E%3Crect x='9' y='2' width='1' height='1' fill='%23365a42'/%3E%3Crect x='11' y='2' width='1' height='1' fill='%23365a42'/%3E%3Crect x='12' y='2' width='1' height='1' fill='%2342664e'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%2342664e'/%3E%3Crect x='15' y='2' width='1' height='1' fill='%23365a42'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='11' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='15' y='3' width='1' height='1' fill='%2342664e'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='14' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='15' y='4' width='1' height='1' fill='%2342664e'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='13' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='14' y='5' width='1' height='1' fill='%2342664e'/%3E%3Crect x='15' y='5' width='1' height='1' fill='%2342664e'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 64px 24px;
+  background-position: bottom left;
 }
