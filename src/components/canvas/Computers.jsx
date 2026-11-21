@@ -5,7 +5,9 @@ import { OrbitControls, Preload, useGLTF } from '@react-three/drei';
 import CanvasLoader from '../Loader';
 
 const Computers = ({ isMobile }) => {
-  const computer = useGLTF('planet/scene.gltf')
+  // (path, useDraco=false, useMeshopt=false): our models aren't compressed, and
+  // the meshopt decoder compiles WebAssembly, which the CSP blocks. See CLAUDE.md.
+  const computer = useGLTF('planet/scene.gltf', false, false)
 
   return (
     <mesh>

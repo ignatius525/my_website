@@ -7,13 +7,15 @@ import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 
+const LIMITS = { name: 100, email: 254, message: 5000 };
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SEND_COOLDOWN_MS = 60 * 1000;
+
+const EMPTY_FORM = { name: "", email: "", message: "", hp_extra: "" };
+
 const Contact = () => {
   const formRef = useRef();
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    message: '',
-  })
+  const [form, setForm] = useState(EMPTY_FORM);
 
   const [loading, setLoading] = useState(false);
 
@@ -29,37 +31,81 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (loading) return;
+
+    // Honeypot: the "hp_extra" field is invisible to people, so only bots fill it.
+    // (Meaningless name on purpose, so browser autofill never fills it.)
+    // Pretend it worked so the bot has no signal to adapt to.
+    if (form.hp_extra) {
+      setForm(EMPTY_FORM);
+      return;
+    }
+
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const message = form.message.trim();
+
+    if (!name || !email || !message) {
+      alert("Please fill in your name, email, and message.");
+      return;
+    }
+    if (!EMAIL_PATTERN.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    if (name.length > LIMITS.name || email.length > LIMITS.email
+      || message.length > LIMITS.message) {
+      alert("One of the fields is too long.");
+      return;
+    }
+
+    const serviceId = import.meta.env.VITE_APP_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY;
+    if (!serviceId || !templateId || !publicKey) {
+      console.error("EmailJS environment variables are not set.");
+      alert("The contact form is unavailable right now. Please try again later.");
+      return;
+    }
+
     setLoading(true);
 
+    // The recipient address is set in the EmailJS template, not sent from here,
+    // so the public key can't be used to send mail to arbitrary addresses.
     emailjs
       .send(
-        import.meta.env.VITE_APP_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_APP_EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         {
-          from_name: form.name,
-          to_name: "Ignat Miagkov",
-          from_email: form.email,
-          to_email: "ignatiusa.525@gmail.com",
-          message: form.message,
+          from_name: name,
+          from_email: email,
+          reply_to: email,
+          message,
         },
-        import.meta.env.VITE_APP_EMAILJS_PUBLIC_KEY
+        {
+          publicKey,
+          // Refuse automated/headless browsers (e.g. Puppeteer spam bots).
+          blockHeadless: true,
+          // At most one message per minute from this browser.
+          limitRate: { id: "contact-form", throttle: SEND_COOLDOWN_MS },
+        }
       )
       .then(
         () => {
           setLoading(false);
           alert("Thank you. I will get back to you as soon as possible.");
 
-          setForm({
-            name: "",
-            email: "",
-            message: "",
-          });
+          setForm(EMPTY_FORM);
         },
         (error) => {
           setLoading(false);
           console.error(error);
 
-          alert("Ahh, something went wrong. Please try again.");
+          if (error?.status === 429) {
+            alert("Please wait a minute before trying again.");
+          } else {
+            alert("Ahh, something went wrong. Please try again.");
+          }
         }
       );
   };
@@ -87,6 +133,9 @@ const Contact = () => {
               name="name"
               value={form.name}
               onChange={handleChange}
+              required
+              maxLength={LIMITS.name}
+              autoComplete="name"
               className="bg-tertiary py-4 px-6
               placeholder:text-secondary text-white
               rounded-lg outline-none border-none font-medium"
@@ -100,6 +149,9 @@ const Contact = () => {
               name="email"
               value={form.email}
               onChange={handleChange}
+              required
+              maxLength={LIMITS.email}
+              autoComplete="email"
               className="bg-tertiary py-4 px-6
               placeholder:text-secondary text-white
               rounded-lg outline-none border-none font-medium"
@@ -113,13 +165,32 @@ const Contact = () => {
               name="message"
               value={form.message}
               onChange={handleChange}
+              required
+              maxLength={LIMITS.message}
               className="bg-tertiary py-4 px-6
               placeholder:text-secondary text-white
               rounded-lg outline-none border-none font-medium"
             />
           </label>
+          {/* Honeypot for spam bots: positioned off-screen and hidden from
+              screen readers and keyboard navigation. Do not remove. */}
+          <label
+            aria-hidden="true"
+            className="absolute -left-[9999px] w-px h-px overflow-hidden"
+          >
+            Website
+            <input
+              type="text"
+              name="hp_extra"
+              value={form.hp_extra}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </label>
           <button
             type='submit'
+            disabled={loading}
             className="bg-tertiary py-3 px-8 outline-none w-fit
             text-white font-bold shadow-md shadow-primary rounded-xl"
           >
