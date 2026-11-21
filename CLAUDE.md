@@ -97,6 +97,7 @@ Spam and abuse protections in `Contact.jsx` (keep them when editing the form):
 - On Amplify, `customHttp.yml` path patterns use a leading slash (`/assets/*`). `**` matches everything.
 - External links opened from JS need `window.open(url, "_blank", "noopener,noreferrer")`, and `<a target="_blank">` needs `rel="noopener noreferrer"`.
 - `.env` and `.env.*` are gitignored (except `.env.example`).
+- **AI crawler opt-out** (the policy is: allow search engines and link previews, block AI). It's made of `public/robots.txt` (named AI user agents → `Disallow: /`, plus a Content-Signal line), `public/.well-known/tdmrep.json`, and the `tdm-reservation: 1` and `X-Robots-Tag: noai, noimageai` headers. These are requests, not enforcement. Never block `Googlebot`, `Bingbot`, `Applebot`, or link-preview bots (`facebookexternalhit`, `LinkedInBot`, `Twitterbot`, `Slackbot`, `Discordbot`). Don't add an `llms.txt`, because it invites LLM use rather than blocking it. New AI user agents appear regularly, so update the list in `robots.txt`.
 
 ## Known issues / leftovers (as of Nov 2026)
 

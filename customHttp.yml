@@ -26,6 +26,13 @@ customHeaders:
         value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
       - key: 'Cross-Origin-Opener-Policy'
         value: 'same-origin'
+      # AI opt-out signals (requests, not enforcement; see public/robots.txt).
+      # TDMRep (W3C): reserves text-and-data-mining rights (EU DSM Directive Art. 4).
+      - key: 'tdm-reservation'
+        value: '1'
+      # Non-standard but honored by some AI crawlers. Search indexing is unaffected.
+      - key: 'X-Robots-Tag'
+        value: 'noai, noimageai'
 
   # Vite fingerprints everything in /assets (hash in filename), so it can be cached forever.
   - pattern: '/assets/*'

@@ -28,6 +28,8 @@ const securityHeaders = {
   'Permissions-Policy':
     'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   'Cross-Origin-Opener-Policy': 'same-origin',
+  'tdm-reservation': '1',
+  'X-Robots-Tag': 'noai, noimageai',
 }
 
 // https://vitejs.dev/config/
