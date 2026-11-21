@@ -9,10 +9,21 @@ import { textVariant } from "../utils/motion";
 
 const ExperienceCard = ({ exp }) => (
   <VerticalTimelineElement
-    contentStyle={{ background: "#1d1836", color: '#fff'}}
-    contentArrowStyle={{ borderRight: '7px solid #232631'}}
+    contentStyle={{
+      background: "#2c2547",
+      color: "#f6eac6",
+      borderRadius: 0,
+      // pixel frame in wood (notched corners), see .pixel-frame in index.css
+      boxShadow: "0 -4px 0 0 #966636, 0 4px 0 0 #966636, -4px 0 0 0 #966636, 4px 0 0 0 #966636",
+    }}
+    contentArrowStyle={{ borderRight: "10px solid #966636" }}
     date={exp.date}
-    iconStyle={{ background: exp.iconBg }}
+    dateClassName="experience-date"
+    iconStyle={{
+      background: exp.iconBg,
+      borderRadius: 0,
+      boxShadow: "0 0 0 4px #966636, 0 0 0 8px #4e361e",
+    }}
     icon={
       <div className="flex justify-center items-center w-full h-full">
         <img 
@@ -24,17 +35,17 @@ const ExperienceCard = ({ exp }) => (
     }
   >
     <div>
-      <h3 className="text-white text-[24px] font-bold">{exp.title}</h3>
-      <p className="text-secondary text-[16px] font-semibold" 
+      <h3 className="text-white-100 font-pixel text-[15px] leading-[1.6]">{exp.title}</h3>
+      <p className="text-sun text-[18px] font-semibold mt-2"
       style={{margin: 0}}>{exp.company_name}</p>
     </div>
 
-    <ul className="mt-5 list-disc ml-5 space-y-2">
+    <ul className="mt-5 list-[square] marker:text-sun ml-5 space-y-2">
       {exp.points.map((point, index) => (
         <li
           key={`experience-point${index}`}
-          className="text-white-100 text-[14px] pl-1
-          tracking-wider"
+          className="text-wool text-[16px] pl-1
+          tracking-wide"
         >
           {point}
         </li>

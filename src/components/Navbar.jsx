@@ -1,20 +1,29 @@
-import React, {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 
 import {styles} from '../styles';
 import { navLinks } from '../constants';
-import { logo, webhog, menu, close } from '../assets';
+import { menu, close } from '../assets';
+import { PixelSprite } from './PixelArt';
 
 const Navbar = () => {
   const [active, setActive] = useState('');
   const [toggle, setToggle] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  // Transparent over the hero sky; solid night bar once the page scrolls.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <nav
       className={`
         ${styles.paddingX} w-full flex
-        items-center py-5 fixed top-0 z-20
-        bg-transparent`}
+        items-center py-5 fixed top-0 z-20 transition-colors
+        ${scrolled ? 'bg-night/95 shadow-[0_4px_0_0_#392854]' : 'bg-transparent'}`}
       >
       <div className='w-full flex justify-between
       items-center max-w-7xl mx-auto'>
@@ -27,11 +36,10 @@ const Navbar = () => {
             window.scrollTo(0,0);
           }}
         >
-          <img src={webhog} alt="logo" className='w-9
-          h-9 object-contain'/>
-          <p className="text-white text-[18px]
-          font-bold cursor-pointer flex">Ignat Miagkov &nbsp; 
-          <span className='sm:block hidden'> | Software Engineer
+          <PixelSprite name="sheep" size={40} />
+          <p className="text-white-100 text-[20px] pixel-shadow
+          font-semibold cursor-pointer flex">Ignat Miagkov&nbsp;
+          <span className='sm:block hidden text-secondary'>| Software Engineer
           </span></p>
         </a>
         <ul className='list-none hidden sm:flex
@@ -41,9 +49,9 @@ const Navbar = () => {
             key={link.id}
             className={`${
               active === link.title
-                ? "text-white"
-                : "text-slate-400"
-            } hover:text-white text-[18px]
+                ? "text-sun"
+                : "text-secondary"
+            } hover:text-sun text-[20px]
             font-medium cursor-pointer`}
             onClick={() => setActive(link.title)}
           >
@@ -58,13 +66,13 @@ const Navbar = () => {
           src={toggle ? close : menu}
           alt="menu"
           className='w-[28px] h-[28px]
-          object-conatin cursor-pointer'
+          object-contain cursor-pointer'
           onClick={() => setToggle(!toggle)}
           />
           <div className={`${!toggle ? 'hidden'
-          : 'flex' } p-6 black-gradient absolute
-          top-20 right-0 mx-4 my-2 min-w[140px]
-          z-10 rounded-xl`}>
+          : 'flex' } p-6 black-gradient pixel-frame absolute
+          top-20 right-0 mx-4 my-2 min-w-[140px]
+          z-10`}>
             <ul className='list-none flex 
             justify-end items-start flex-col gap-4'>
             {navLinks.map((link) => (
@@ -72,9 +80,9 @@ const Navbar = () => {
                 key={link.id}
                 className={`${
                   active === link.title
-                    ? "text-white"
-                    : "text-slate-400"
-                } font-poppins font-medium cursor-pointer
+                    ? "text-sun"
+                    : "text-secondary"
+                } font-medium cursor-pointer
                 text-[16px]`}
                 onClick={() => { 
                   setToggle(!toggle);
