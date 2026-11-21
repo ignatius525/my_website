@@ -25,7 +25,9 @@ import spring from "./tech/spring.png"
 import grafana from "./tech/grafana.jpg"
 import kafka from "./tech/kafka.png"
 import jenkins from "./tech/jenkins.jpg"
-import splunk from "./tech/splunk.jpg"
+import splunk from "./tech/splunk.png"
+import redis from "./tech/redis.jpg"
+import postgresql from "./tech/postgresql.png"
 
 import meta from "./company/meta.png";
 import shopify from "./company/shopify.png";
@@ -40,6 +42,7 @@ import webhog from "./web-hog.png";
 import knack from "./company/knack.jpg";
 import bny from "./company/bny.png";
 import bb from "./company/bb.png";
+import nuveen from "./company/nuveen.png";
 
 export {
   logo,
@@ -73,11 +76,14 @@ export {
   knack,
   bny,
   bb,
+  nuveen,
   cpp,
   py,
   spring,
   grafana,
   kafka,
   jenkins,
-  splunk
+  splunk,
+  redis,
+  postgresql
 };

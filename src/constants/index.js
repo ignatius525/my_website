@@ -21,13 +21,16 @@ import {
     knack,
     bny,
     bb,
+    nuveen,
     cpp,
     py,
     spring,
     grafana,
     kafka,
     jenkins,
-    splunk
+    splunk,
+    redis,
+    postgresql,
   } from "../assets";
   
   export const navLinks = [
@@ -66,56 +69,57 @@ import {
     },
   ];
   
+  // Mirrors the resume's skills. Each entry is its own WebGL canvas (BallCanvas),
+  // so keep this to ~12: browsers cap live WebGL contexts at about 16 per page.
   const technologies = [
     {
-      name: "CPP",
+      name: "C++",
       icon: cpp,
     },
     {
-      name: "PY",
+      name: "Python",
       icon: py,
-    },
-    {
-      name: "Spring",
-      icon: spring,
-    },
-    {
-      name: "docker",
-      icon: docker,
-    },
-    {
-      name: "JavaScript",
-      icon: javascript,
     },
     {
       name: "TypeScript",
       icon: typescript,
     },
     {
-      name: "React JS",
+      name: "React",
       icon: reactjs,
     },
     {
-      name: "git",
-      icon: git,
-    },
-    {
-      name: "Grafana",
-      icon: grafana,
+      name: "Node.js",
+      icon: nodejs,
     },
     {
       name: "Kafka",
       icon: kafka,
     },
     {
+      name: "Redis",
+      icon: redis,
+    },
+    {
+      name: "PostgreSQL",
+      icon: postgresql,
+    },
+    {
+      name: "Docker",
+      icon: docker,
+    },
+    {
       name: "Jenkins",
       icon: jenkins,
     },
     {
-      name: "splunk",
+      name: "Grafana",
+      icon: grafana,
+    },
+    {
+      name: "Splunk",
       icon: splunk,
     },
-    
   ];
   
   const experiences = [
@@ -150,12 +154,38 @@ import {
       company_name: "Bloomberg LP",
       icon: bb,
       iconBg: "#000000",
-      date: "February 2023 - Present",
+      date: "February 2023 - June 2025",
+      // Optional: bullets grouped by team (rendered with subheadings) instead of `points`.
+      groups: [
+        {
+          name: "Fixed Income & Derivatives Core (FiD)",
+          points: [
+            "Designed and implemented new C++ infrastructure API for loading FI curve metadata using Redis, reducing median load by 40%",
+            "Enhanced securities autocomplete framework for related curves fetching, reducing median latency by 25% for finding related curves for any equity in Bloomberg",
+          ],
+        },
+        {
+          name: "Fixed Income Electronic Trading (FIET)",
+          points: [
+            "Built automated ML forecasting pipeline via PyTorch for detecting anomalous trading activity, reducing median reaction time for undetected issues by 37%",
+            "Created new C++ libraries for sellside dealer entitlement features, consolidating and reducing existing business logic by 60% across all FIET platforms",
+            "Rewrote existing Python reference data pipeline for portfolio calculations using publish-subscribe paradigm, reducing median calculation time by 5 minutes (20%) and preventing future outages",
+            "Built monitoring and stress testing tools using internal trace metrics and Grafana to identify and fix potential bottlenecks in transaction processing",
+          ],
+        },
+      ],
+    },
+    {
+      title: "Portfolio Management Engineer",
+      company_name: "Nuveen · Brooklyn Investment Group",
+      icon: nuveen,
+      iconBg: "#08262c",
+      date: "October 2025 - Present",
       points: [
-        "Developing full-stack applications for bids/offers list trading (BOLT) platform, executing over \$20 billion in traded assets every day",
-        "Creating new feature for municipal bonds trading workflow for client to easily manage receiving dealers for quotes",
-        "Creating new APIs to enable user entitlement features across all fixed income platforms",
-        "Conducting integration, load testing of individual services using Docker, Locust to identify potential bottlenecks",
+        "Oversee and maintain a sophisticated, automated portfolio management system managing $13B in AUM daily",
+        "Engineered an automated tax-neutral deleveraging system that strategically transitions accounts from leveraged extensions (e.g., 200/100) to long-only or target-leverage profiles, optimizing for long-term tax alpha",
+        "Optimized the operational pipeline by implementing automated edge-case detection and resolution tools, reducing manual labor and intervention time by over 15%",
+        "Collaborate directly with Client Success teams to translate complex client requirements into scalable technical solutions, ensuring the automated system meets evolving institutional and retail needs",
       ],
     },
     // {
