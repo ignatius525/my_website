@@ -1,0 +1,34 @@
+# AWS Amplify Hosting custom response headers.
+# Amplify reads this file from the repo root on every deploy.
+# Keep the security headers in sync with `securityHeaders` in vite.config.js
+# (used by `npm run preview` so the policy can be tested locally).
+#
+# Verify after deploying:  curl -sI https://<your-domain>/ | grep -iE 'content-security|strict-transport|x-frame|referrer|permissions'
+
+customHeaders:
+  - pattern: '**'
+    headers:
+      # Only load code/data from this site (no third parties).
+      # style-src needs 'unsafe-inline' for runtime styles from animation/3D libs.
+      # blob:/data: are needed by three.js loaders for textures and embedded buffers.
+      - key: 'Content-Security-Policy'
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+      # Force HTTPS for a year. Add '; includeSubDomains' only once every subdomain serves HTTPS.
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000'
+      - key: 'X-Content-Type-Options'
+        value: 'nosniff'
+      - key: 'X-Frame-Options'
+        value: 'DENY'
+      - key: 'Referrer-Policy'
+        value: 'strict-origin-when-cross-origin'
+      - key: 'Permissions-Policy'
+        value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+      - key: 'Cross-Origin-Opener-Policy'
+        value: 'same-origin'
+
+  # Vite fingerprints everything in /assets (hash in filename), so it can be cached forever.
+  - pattern: '/assets/*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=31536000, immutable'

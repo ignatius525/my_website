@@ -43,10 +43,11 @@ import {
       id: "work",
       title: "Work",
     },
-    {
-      id: "contact",
-      title: "Contact",
-    },
+    // Contact section is disabled (see App.jsx); restore this when re-enabling it.
+    // {
+    //   id: "contact",
+    //   title: "Contact",
+    // },
   ];
   
   const services = [
