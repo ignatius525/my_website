@@ -46,7 +46,7 @@ const About = () => {
         max-w-3xl leading-[32px]'
       >
         I am currently an Investment Engineer at Nuveen, where I help run an automated
-        portfolio management system managing $13B in assets every day. Before that, I spent
+        portfolio management system managing $13 billion in assets every day. Before that, I spent
         over two years as a Software Engineer in Fixed Income at Bloomberg, building C++
         infrastructure, trading-platform features, and data pipelines. This website is
         currently still not quite finished but shows some cool things I learned.

@@ -59,7 +59,7 @@ Order: `Navbar`, `Hero` (full-screen 3D pasture), then `<main className="night-s
 
 ## Conventions and patterns
 
-- **Content changes go in `src/constants/index.js`**, not in the components. Experience entries are listed oldest first. Each entry has `title`, `company_name`, `icon`, `iconBg`, `date`, `points[]`.
+- **Content changes go in `src/constants/index.js`**, not in the components. Experience entries are listed oldest first. Each entry has `title`, `company_name`, `icon`, `iconBg`, `date`, and either `points[]` or `groups: [{ name, points[] }]` (bullets under team subheadings, used by Bloomberg). Pixelify Sans's capital B reads like an 8, so spell out figures like "$13 billion" rather than "$13B".
 - **Adding an image:** put it in `src/assets/` (or `tech/` or `company/`), import and re-export it in `src/assets/index.js`, then reference it from constants.
 - **Sections:** export as `SectionWrapper(Component, "anchorId")`. The id becomes the `#anchor` target, and `navLinks[].id` must match it. Current ids are `about` and `work` (the Experience section). The `contact` nav link is commented out while Contact is disabled. Child elements animate by using `variants={...}` from `utils/motion.js`. The wrapper's `staggerContainer` drives `hidden` → `show` on scroll into view (`once: true`).
 - **Headings:** use `styles.sectionSubText` (small uppercase label) followed by `styles.sectionHeadText` (big title, conventionally ending with a period, e.g. "Overview.").
@@ -126,7 +126,5 @@ Fix these when asked, or flag them when touching nearby code:
 - `Feedbacks.jsx` is a stub. `testimonials` is tutorial placeholder data.
 - `Loader.jsx` uses class `canvas-load`, but the CSS defines `.canvas-loader`, so the spinner never shows (only the % text).
 - `Contact.jsx`: `flex[0.75]` should be `flex-[0.75]`.
-- Several imports in `constants/index.js` are unused (meta, tesla, etc.). `src/assets/tech/` has both `splunk.png` and `splunk.jpg`, and the `splunk` tech icon actually renders a Redis logo.
-- `constants/index.js` (Knack experience) contains a LaTeX leftover: `($>$500 GB/day)`.
 - Old-theme assets are unused: `src/assets/city-bg.jpg`, `herobg.png`, `web-hog.png`, the `web/mobile/backend/creator.png` illustrations, and the GLTF models in `public/`.
 - Lint fails on the current tree. Almost all errors are `react/no-unknown-property` on react-three-fiber JSX props (e.g. `args`, `position`, `intensity`) and `react/prop-types`. Fixing it is a config change: configure r3f props in `no-unknown-property` and turn off `prop-types`. Until then, lint isn't usable as a gate.
