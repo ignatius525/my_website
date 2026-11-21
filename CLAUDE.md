@@ -126,5 +126,6 @@ Fix these when asked, or flag them when touching nearby code:
 - `Feedbacks.jsx` is a stub. `testimonials` is tutorial placeholder data.
 - `Loader.jsx` uses class `canvas-load`, but the CSS defines `.canvas-loader`, so the spinner never shows (only the % text).
 - `Contact.jsx`: `flex[0.75]` should be `flex-[0.75]`.
+- `src/assets/index.js` still re-exports logos nothing imports (meta, tesla, starbucks, shopify; tech html, css, redux, tailwind, mongodb, threejs, spring, javascript, git). Vite tree-shakes them, so it's cosmetic.
 - Old-theme assets are unused: `src/assets/city-bg.jpg`, `herobg.png`, `web-hog.png`, the `web/mobile/backend/creator.png` illustrations, and the GLTF models in `public/`.
 - Lint fails on the current tree. Almost all errors are `react/no-unknown-property` on react-three-fiber JSX props (e.g. `args`, `position`, `intensity`) and `react/prop-types`. Fixing it is a config change: configure r3f props in `no-unknown-property` and turn off `prop-types`. Until then, lint isn't usable as a gate.
