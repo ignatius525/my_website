@@ -7,7 +7,6 @@ import Experience from './Experience';
 import Works from './Works';
 import Feedbacks from './Feedbacks';
 import Contact from './Contact';
-import OpenGraph from './OpenGraph';
 import Footer from './Footer';
 
 export {
@@ -23,6 +22,5 @@ export {
   BallCanvas, 
   PastureCanvas,
   StarsCanvas,
-  OpenGraph,
   Footer
 }

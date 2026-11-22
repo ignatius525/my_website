@@ -2,7 +2,6 @@ import { About, Experience, Footer, Hero, Navbar, Tech } from './components';
 const App = ()  => {
   return (
     <>
-      {/* <OpenGraph/> */}
       <div className="relative z-0 bg-primary">
         <Navbar />
         <Hero />

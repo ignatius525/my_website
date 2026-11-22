@@ -28,7 +28,6 @@ Deployed on **AWS Amplify Hosting**, with the domain on Route 53. Amplify builds
 - `@emailjs/browser` v4 handles the contact form (no backend)
 - No router. It's a single page, and all navigation uses `#anchor` links. `react-router-dom` was removed: it was only used for one home link and carried open-redirect advisories. Don't add it back for anchor navigation.
 - Two tilt libraries: `react-parallax-tilt` (About) and `react-tilt` (Works)
-- `react-helmet` (only in the unused `OpenGraph` component)
 
 ## Layout
 
@@ -121,7 +120,7 @@ Fix these when asked, or flag them when touching nearby code:
 
 - `npm audit` (dev only) still reports esbuild/vite dev-server advisories. They're fixed only in Vite 6+ (a major upgrade) and don't affect the deployed bundle, since production deps audit clean.
 
-- `index.html` OG tags are placeholder/joke content (a news headline and image about a hippo), not real site metadata. The page `<title>` is "IM Website". (The favicon is now `public/favicon.svg`, the pixel sheep.) The banner art would make a good `og:image`. The last several commits were attempts to get the OG preview working. Note that OG tags must be in static `index.html` because crawlers don't run JS, so the `react-helmet` `OpenGraph` component can't fix link previews.
+- Link previews: OG/Twitter tags live in static `index.html` (crawlers don't run JS). `og:image` is the absolute URL `https://www.ignatmiagkov.com/og-banner.jpg` (`public/og-banner.jpg`, the LinkedIn banner, 1400×349). If the domain or image changes, update the absolute URLs. iMessage and other platforms cache previews, so changes can take a while to show. The page `<title>` is still "IM Website".
 - `Works.jsx`: has the typo `fond-bold` and an undefined class `card-img_hover`. It is wrapped with an empty anchor id `""`. `projects` in constants is tutorial placeholder data (Car Rent / Job IT / Trip Guide).
 - `Feedbacks.jsx` is a stub. `testimonials` is tutorial placeholder data.
 - `Loader.jsx` uses class `canvas-load`, but the CSS defines `.canvas-loader`, so the spinner never shows (only the % text).
