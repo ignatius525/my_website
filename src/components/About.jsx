@@ -45,8 +45,11 @@ const About = () => {
         className='mt-6 text-secondary text-[19px]
         max-w-3xl leading-[32px]'
       >
-        I am currently a Software Engineer working in Fixed Income Trading at Bloomberg.
-        This website is currently still not quite finished but shows some cool things I learned.
+        I am currently a Portfolio Management Engineer at Nuveen, where I help run an automated
+        portfolio management system managing $13 billion in assets every day. Before that, I spent
+        over two years as a Software Engineer in Fixed Income at Bloomberg, building C++
+        infrastructure, trading-platform features, and data pipelines. This website is
+        currently still not quite finished but shows some cool things I learned.
       </motion.p>
 
       <div className='mt-20 flex flex-wrap gap-12'>

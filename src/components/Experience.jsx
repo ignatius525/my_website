@@ -7,6 +7,19 @@ import { experiences } from '../constants';
 import { SectionWrapper } from '../hoc';
 import { textVariant } from "../utils/motion";
 
+const Points = ({ points, className }) => (
+  <ul className={`${className} list-[square] marker:text-sun ml-5 space-y-2`}>
+    {points.map((point, index) => (
+      <li
+        key={`experience-point${index}`}
+        className="text-wool text-[16px] pl-1 tracking-wide"
+      >
+        {point}
+      </li>
+    ))}
+  </ul>
+)
+
 const ExperienceCard = ({ exp }) => (
   <VerticalTimelineElement
     contentStyle={{
@@ -40,18 +53,19 @@ const ExperienceCard = ({ exp }) => (
       style={{margin: 0}}>{exp.company_name}</p>
     </div>
 
-    <ul className="mt-5 list-[square] marker:text-sun ml-5 space-y-2">
-      {exp.points.map((point, index) => (
-        <li
-          key={`experience-point${index}`}
-          className="text-wool text-[16px] pl-1
-          tracking-wide"
-        >
-          {point}
-        </li>
-      ))}
-
-    </ul>
+    {/* Either a flat `points` list, or `groups` of points with a team subheading */}
+    {exp.groups ? (
+      exp.groups.map((group) => (
+        <div key={group.name} className="mt-5">
+          <h4 className="text-secondary text-[15px] font-semibold uppercase tracking-wider">
+            {group.name}
+          </h4>
+          <Points points={group.points} className="mt-2" />
+        </div>
+      ))
+    ) : (
+      <Points points={exp.points} className="mt-5" />
+    )}
   </VerticalTimelineElement>
 )
 

@@ -38,8 +38,8 @@ const Navbar = () => {
         >
           <PixelSprite name="sheep" size={40} />
           <p className="text-white-100 text-[20px] pixel-shadow
-          font-semibold cursor-pointer flex">Ignat Miagkov&nbsp;
-          <span className='sm:block hidden text-secondary'>| Software Engineer
+          font-semibold cursor-pointer flex whitespace-nowrap">Ignat Miagkov&nbsp;
+          <span className='lg:block hidden text-secondary'>| Portfolio Management Engineer
           </span></p>
         </a>
         <ul className='list-none hidden sm:flex
