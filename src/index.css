@@ -11,10 +11,17 @@
   color-scheme: dark;
 }
 
+/* Pixelify Sans's "5" looks like an "S". "Pixel Five" holds only a redrawn 5
+   (scripts/pixel-five.py) and sits in front of Pixelify Sans in the font stack. */
+@font-face { font-family: "Pixel Five"; font-weight: 400; font-display: swap; unicode-range: U+0035; src: url("./assets/fonts/pixel-five-400.woff2") format("woff2"); }
+@font-face { font-family: "Pixel Five"; font-weight: 500; font-display: swap; unicode-range: U+0035; src: url("./assets/fonts/pixel-five-500.woff2") format("woff2"); }
+@font-face { font-family: "Pixel Five"; font-weight: 600; font-display: swap; unicode-range: U+0035; src: url("./assets/fonts/pixel-five-600.woff2") format("woff2"); }
+@font-face { font-family: "Pixel Five"; font-weight: 700; font-display: swap; unicode-range: U+0035; src: url("./assets/fonts/pixel-five-700.woff2") format("woff2"); }
+
 html,
 body {
   /* set here (not on *) so elements can override it, e.g. font-pixel spans */
-  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-family: "Pixel Five", "Pixelify Sans", system-ui, sans-serif;
   background-color: #1c1938;
   color: #f6eac6;
 }
@@ -240,19 +247,9 @@ body {
   }
 }
 
-/* Experience timeline: a wooden fence rail instead of a thin white line */
-.vertical-timeline::before {
-  background: #966636 !important;
-  width: 6px !important;
-  box-shadow: 2px 0 0 #4e361e;
-}
-.vertical-timeline-element-icon img {
-  image-rendering: auto;
-}
-.experience-date {
-  color: #b9aed0;
-  font-size: 18px !important;
-  opacity: 1 !important;
+/* Raster art shown at pixel scale (e.g. the banner behind the Steam profile) */
+.pixel-img {
+  image-rendering: pixelated;
 }
 
 /* Pixel grass edge (tufts) used on top of the footer pasture */
