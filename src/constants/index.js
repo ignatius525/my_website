@@ -110,6 +110,7 @@ import {
   // job is a "game", each resume bullet an "achievement". Oldest first.
   // - start/end: "YYYY-MM" (end: null = current job). Hours on record are
   //   estimated from these at 40 hrs/week.
+  // - iconBg: 6-digit hex (picks dark or cream text for the logo tile)
   // - achievement.icon: a SPRITES key in components/PixelArt.jsx
   // - achievement.metric: optional headline number -> "Rarest Achievements"
   // - achievement.team: optional subheading (Bloomberg's two teams)

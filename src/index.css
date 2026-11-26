@@ -22,6 +22,8 @@ html,
 body {
   /* set here (not on *) so elements can override it, e.g. font-pixel spans */
   font-family: "Pixel Five", "Pixelify Sans", system-ui, sans-serif;
+  /* Pixelify's fi/fl ligatures render like a capital "A" ("files" -> "Ales") */
+  font-variant-ligatures: no-common-ligatures;
   background-color: #1c1938;
   color: #f6eac6;
 }

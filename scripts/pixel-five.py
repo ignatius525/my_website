@@ -7,6 +7,9 @@ unicode-range U+0035. The grid edges come from each weight's own S/5 outlines,
 so the strokes match. License: SIL OFL 1.1 (src/assets/fonts/OFL.txt); renamed
 "Pixel Five" as a Modified Version.
 
+The P table was measured by hand from Pixelify v1 outlines (dump the S and 5
+glyphs with fontTools RecordingPen); re-measure it if the source font changes.
+
 Usage (needs fonttools + brotli):
   python3 scripts/pixel-five.py node_modules/@fontsource/pixelify-sans/files src/assets/fonts
 """

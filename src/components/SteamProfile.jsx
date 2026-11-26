@@ -109,6 +109,18 @@ const Header = ({ level }) => (
         {profile.location}
       </p>
       <p className="text-wool text-[17px] mt-4 max-w-xl">{profile.summary}</p>
+      {/* the sidebar's Friends sit at the very bottom on phones, so surface the links here too */}
+      <ul className="lg:hidden mt-4 flex gap-3" aria-label="Contact links">
+        {profile.friends.map((f) => (
+          <li key={f.url}>
+            <a href={f.url} target="_blank" rel="noopener noreferrer"
+              className="inline-block bg-plum hover:bg-horizon text-white-100 text-[15px] px-3 py-1 pixel-frame"
+              style={{ '--px': '2px', '--frame': '#ffc666' }}>
+              {f.name}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
 
     <div className="sm:w-[280px] shrink-0">
@@ -150,7 +162,7 @@ const Sidebar = ({ current }) => (
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Skills">
         {profile.skills.map((skill) => (
           <li key={skill} className="bg-plum text-white-100 text-[14px] px-2 py-1 pixel-frame"
-            style={{ '--px': '2px', '--frame': '#4f3260' }}>
+            style={{ '--px': '2px', '--frame': '#665a7e' /* cloud */ }}>
             {skill}
           </li>
         ))}
@@ -161,7 +173,8 @@ const Sidebar = ({ current }) => (
       Games <span className="text-secondary text-[22px] ml-1">{experiences.length}</span>
     </a>
 
-    <div>
+    {/* phones already see Favorite Groups right above the sidebar */}
+    <div className="hidden lg:block">
       <p className="text-white-100 text-[18px]">
         Groups <span className="text-secondary text-[22px] ml-1">{profile.groups.length}</span>
       </p>
@@ -234,9 +247,9 @@ const RarestAchievements = () => {
   const rare = experiences.flatMap((e) => e.achievements.filter((a) => a.metric).map((a) => ({ ...a, game: e.game })));
   return (
     <Panel title="Rarest Achievements" right={`${rare.length} showcased`} index={2}>
-      <ul className="grid xs:grid-cols-2 sm:grid-cols-3 gap-4">
+      <ul className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
         {rare.map((a) => (
-          <li key={a.title} className="bg-night/70 p-3 flex gap-3 items-center" title={a.text}>
+          <li key={`${a.game}-${a.title}`} className="bg-night/70 p-3 flex gap-3 items-center" title={a.text}>
             <AchievementIcon icon={a.icon} title={a.title} size={48} />
             <div className="min-w-0">
               <p className="text-sun text-[16px] leading-tight">{a.metric}</p>
@@ -252,7 +265,7 @@ const RarestAchievements = () => {
 
 const Workshop = () => (
   <Panel title="Workshop Showcase" right={`${projects.length} items`} index={3}>
-    <ul className="grid sm:grid-cols-2 gap-4" id="projects">
+    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 scroll-mt-24" id="projects">
       {projects.map((p) => {
         const soon = p.status === 'coming-soon';
         return (
@@ -341,14 +354,14 @@ const GameRow = ({ exp, hours }) => {
       </div>
 
       <details className="mt-3 bg-black-100/80 px-3 py-2 group">
-        <summary className="cursor-pointer list-none flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+        <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <span className="text-secondary text-[14px] shrink-0">
             Achievement Progress {exp.achievements.length} of {exp.achievements.length}
           </span>
-          <span className="flex-1 min-w-[120px]"><Progress value={exp.achievements.length} max={exp.achievements.length} /></span>
+          <span className="flex-1 min-w-[120px]" aria-hidden="true"><Progress value={exp.achievements.length} max={exp.achievements.length} /></span>
           <span className="text-sun text-[14px] shrink-0">
-            <span className="group-open:hidden">View achievements ▸</span>
-            <span className="hidden group-open:inline">Hide achievements ▾</span>
+            <span className="group-open:hidden">View achievements <span aria-hidden="true">▸</span></span>
+            <span className="hidden group-open:inline">Hide achievements <span aria-hidden="true">▾</span></span>
           </span>
         </summary>
         <div className="mt-3 flex flex-col gap-4">
@@ -377,7 +390,7 @@ const GameRow = ({ exp, hours }) => {
 const RecentActivity = ({ games, hours }) => {
   const current = games.find((e) => !e.end);
   return (
-    <div id="recent-activity">
+    <div id="recent-activity" className="scroll-mt-24">
       <Panel
         title="Recent Activity"
         right={current ? `${HOURS_PER_WEEK * 2} hours past 2 weeks` : undefined}
@@ -399,7 +412,9 @@ const RecentActivity = ({ games, hours }) => {
 const SteamProfile = () => {
   const { level, hours, games, current } = useMemo(() => {
     const now = new Date();
-    const years = Math.floor((now - parseYM(profile.careerStart)) / (365.25 * 864e5));
+    const start = parseYM(profile.careerStart);
+    const months = (now.getFullYear() - start.getFullYear()) * 12 + now.getMonth() - start.getMonth();
+    const years = Math.floor(months / 12);
     const byNewest = [...experiences].reverse();
     return {
       level: Math.max(1, years),
@@ -419,7 +434,7 @@ const SteamProfile = () => {
       <div className="relative isolate mt-12 overflow-hidden">
         {/* Profile background: the LinkedIn banner, fading into the night sky */}
         <div className="absolute inset-x-0 top-0 h-[340px] -z-10" aria-hidden="true">
-          <img src="/og-banner.jpg" alt="" className="w-full h-full object-cover pixel-img" />
+          <img src="/og-banner.jpg" alt="" loading="lazy" decoding="async" className="w-full h-full object-cover pixel-img" />
           <div className="absolute inset-0 bg-gradient-to-b from-night/40 via-night/75 to-night" />
         </div>
 
