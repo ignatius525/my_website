@@ -24,10 +24,10 @@ Deployed on **AWS Amplify Hosting**, with the domain on Route 53. Amplify builds
 - `three`, `@react-three/fiber` v8, `@react-three/drei` v9, `maath` (star field)
 - `framer-motion` v10 for section and element animations
 - Tailwind 3 with PostCSS. Custom theme is in `tailwind.config.cjs`.
-- Pixel fonts are self-hosted via `@fontsource`: **Press Start 2P** for headings (`font-pixel`) and **Pixelify Sans** for body text (`font-sans`, the default, set on `html, body` in `index.css`, not on `*`, so `font-pixel` spans can override it). Both are imported in `main.jsx`. Don't use Google Fonts, because the CSP blocks them.
+- Pixel fonts are self-hosted via `@fontsource`: **Press Start 2P** for headings (`font-pixel`) and **Pixelify Sans** for body text (`font-sans`, the default, set on `html, body` in `index.css`, not on `*`, so `font-pixel` spans can override it). Both are imported in `main.jsx`. Don't use Google Fonts, because the CSP blocks them. Pixelify's own "5" looks like an "S", so a tiny **"Pixel Five"** face (`src/assets/fonts/pixel-five-*.woff2`, one redrawn glyph per weight, `unicode-range: U+0035`, OFL) sits in front of it in the stack (`index.css` and Tailwind `sans`). Regenerate it with `scripts/pixel-five.py` (fonttools) if the Pixelify version changes.
 - `@emailjs/browser` v4 handles the contact form (no backend)
 - No router. It's a single page, and all navigation uses `#anchor` links. `react-router-dom` was removed: it was only used for one home link and carried open-redirect advisories. Don't add it back for anchor navigation.
-- Two tilt libraries: `react-parallax-tilt` (About) and `react-tilt` (Works)
+- `react-parallax-tilt` (About cards)
 
 ## Layout
 
@@ -35,13 +35,14 @@ Deployed on **AWS Amplify Hosting**, with the domain on Route 53. Amplify builds
 index.html              # <head>: title, OG meta tags (no favicon right now)
 src/main.jsx            # React root (StrictMode)
 src/App.jsx             # page composition; order of sections lives here
-src/index.css           # Tailwind layers, base font, pixel-art utilities (.pixel-frame, .pixel-shadow, .sun-gradient, .night-sky, .grass-edge, .pixelated), timeline overrides
+src/index.css           # Tailwind layers, base font, pixel-art utilities (.pixel-frame, .pixel-shadow, .sun-gradient, .night-sky, .grass-edge, .pixelated, .pixel-img)
 src/styles.js           # shared Tailwind class strings (padding, hero/section heading text)
 src/utils/motion.js     # Framer Motion variant factories: textVariant, fadeIn, zoomIn, slideIn, staggerContainer
 src/hoc/SectionWrapper.jsx  # HOC: wraps a section in motion.section + anchor span
-src/constants/index.js  # ALL site content: navLinks, services, technologies, experiences, testimonials, projects
+src/constants/index.js  # ALL site content: navLinks, services, technologies, experiences, profile, testimonials, projects
 src/assets/index.js     # central re-export of every image in src/assets
-src/components/         # page sections (Navbar, Hero, About, Experience, Tech, Works, Feedbacks, Contact, Loader, OpenGraph)
+src/components/         # page sections (Navbar, Hero, About, SteamProfile, Tech, Footer, Feedbacks, Contact, Loader)
+src/components/SteamProfile.jsx  # Work experience as a Steam-style gamer profile (+ Workshop = projects)
 src/components/canvas/  # r3f canvases: pasture/ (hero scene), Ball (tech wool balls), Earth + Stars (only used by disabled Contact)
 src/components/canvas/pasture/  # Pasture.jsx (Canvas, camera rig), herd.js (all character behaviour), Characters.jsx (Sheep, Dog + bark bubble, Shepherd), Landscape.jsx (sky, sun, clouds, stars, hills, ground, pen), voxel.jsx (shared cube, toon materials, <Vox>), palette.js + layout.js (pure data: colors, PEN, mulberry32)
 src/components/PixelArt.jsx  # <PixelSprite> + SPRITES: pixel art as char grids -> crisp SVG (navbar sheep logo, About icons, footer)
@@ -53,14 +54,19 @@ Barrel files: `src/components/index.js`, `src/components/canvas/index.js`, `src/
 
 ## Page composition (`src/App.jsx`)
 
-Order: `Navbar`, `Hero` (full-screen 3D pasture), then `<main className="night-sky">` containing `About`, `Experience`, `Tech`, then `Footer`.
-`Works` (projects), `Feedbacks` (testimonials), `OpenGraph`, and the `Contact` + `StarsCanvas` block are commented out. Contact is **temporarily disabled**; App.jsx has a comment listing what to restore.
+Order: `Navbar`, `Hero` (full-screen 3D pasture), then `<main className="night-sky">` containing `About`, `SteamProfile` (anchor `#work`), `Tech`, then `Footer`.
+`Feedbacks` (testimonials) and the `Contact` + `StarsCanvas` block are commented out. Contact is **temporarily disabled**; App.jsx has a comment listing what to restore.
 
 ## Conventions and patterns
 
-- **Content changes go in `src/constants/index.js`**, not in the components. Experience entries are listed oldest first. Each entry has `title`, `company_name`, `icon`, `iconBg`, `date`, and either `points[]` or `groups: [{ name, points[] }]` (bullets under team subheadings, used by Bloomberg). Pixelify Sans's capital B reads like an 8, so spell out figures like "$13 billion" rather than "$13B".
+- **Content changes go in `src/constants/index.js`**, not in the components. Experience entries are listed oldest first. Each has `game` (display name), `title`, `company_name`, `icon`, `iconBg`, `start`/`end` (`"YYYY-MM"`, `end: null` = current job), and `achievements: [{ title, icon, text, metric?, team? }]`. `text` is the resume bullet, verbatim. `icon` is a `SPRITES` key. `metric` puts it in "Rarest Achievements". `team` groups bullets under a subheading (Bloomberg). `profile` holds the header, skills (sidebar badges), education (groups) and contact links (friends). `projects` feeds the Workshop showcase (`status: "released" | "coming-soon"`). Pixelify Sans's capital B reads like an 8, so spell out figures like "$13 billion" rather than "$13B".
 - **Adding an image:** put it in `src/assets/` (or `tech/` or `company/`), import and re-export it in `src/assets/index.js`, then reference it from constants.
-- **Sections:** export as `SectionWrapper(Component, "anchorId")`. The id becomes the `#anchor` target, and `navLinks[].id` must match it. Current ids are `about` and `work` (the Experience section). The `contact` nav link is commented out while Contact is disabled. Child elements animate by using `variants={...}` from `utils/motion.js`. The wrapper's `staggerContainer` drives `hidden` → `show` on scroll into view (`once: true`).
+- **Steam profile (`SteamProfile.jsx`):** layout borrowed from Steam Community profiles (header + Level, showcases on the left, sidebar on the right; on phones the sidebar comes last), restyled in the pixel palette. Never use Valve/Steam logos or wordmarks. Derived values:
+  - Level = full years since `profile.careerStart`.
+  - Hours on record ≈ 40 hrs/week between `start` and `end` (or today).
+  - "Currently In-Game" = the entry with `end: null`.
+  - Achievement lists are native `<details>`, with no JS state.
+- **Sections:** export as `SectionWrapper(Component, "anchorId")`. The id becomes the `#anchor` target, and `navLinks[].id` must match it. Current ids are `about`, `work` (the Steam profile) and `tech`; the Workshop showcase also has `#projects`. The `contact` nav link is commented out while Contact is disabled. Child elements animate by using `variants={...}` from `utils/motion.js`. The wrapper's `staggerContainer` drives `hidden` → `show` on scroll into view (`once: true`). The trigger is `amount: "some"` with a bottom margin, not a fraction: `amount: 0.25` can never fire for sections taller than 4× the viewport (the Steam profile on phones), which then stay invisible.
 - **Headings:** use `styles.sectionSubText` (small uppercase label) followed by `styles.sectionHeadText` (big title, conventionally ending with a period, e.g. "Overview.").
 - **Colors:** the palette was sampled from the banner. It's defined twice, as Tailwind tokens in `tailwind.config.cjs` and as `PALETTE` in `pasture/palette.js`; keep them in sync. Surfaces: `night`/`primary` `#1c1938`, `tertiary` (cards) `#2c2547`. Text: `white-100` (cream) `#f6eac6`, `secondary` (lavender) `#b9aed0`. Accents: `sun` `#ffc666`, `ember`, `horizon`, `wood`/`wood-light`/`wood-dark`, `grass*`, `wool*`, `lantern`. Use tokens, not new hex values.
 - **Pixel-art look:** no rounded corners. Frame panels with `.pixel-frame` (a 4px wood frame with notched corners; set `--frame` to recolor, or use `.pixel-frame-sun`/`.pixel-frame-plum`). Headings get `.pixel-shadow`. For new icons, add a char-grid sprite to `SPRITES` in `PixelArt.jsx` (all rows must be the same width) instead of using raster images. Any r3f canvas should sit inside a `.pixelated` wrapper with a fractional `dpr` and `antialias: false`.
@@ -121,10 +127,9 @@ Fix these when asked, or flag them when touching nearby code:
 - `npm audit` (dev only) still reports esbuild/vite dev-server advisories. They're fixed only in Vite 6+ (a major upgrade) and don't affect the deployed bundle, since production deps audit clean.
 
 - Link previews: OG/Twitter tags live in static `index.html` (crawlers don't run JS). `og:image` is the absolute URL `https://www.ignatmiagkov.com/og-banner.jpg` (`public/og-banner.jpg`, the LinkedIn banner, 1400×349). If the domain or image changes, update the absolute URLs. iMessage and other platforms cache previews, so changes can take a while to show. The page `<title>` is still "IM Website".
-- `Works.jsx`: has the typo `fond-bold` and an undefined class `card-img_hover`. It is wrapped with an empty anchor id `""`. `projects` in constants is tutorial placeholder data (Car Rent / Job IT / Trip Guide).
 - `Feedbacks.jsx` is a stub. `testimonials` is tutorial placeholder data.
 - `Loader.jsx` uses class `canvas-load`, but the CSS defines `.canvas-loader`, so the spinner never shows (only the % text).
 - `Contact.jsx`: `flex[0.75]` should be `flex-[0.75]`.
-- `src/assets/index.js` still re-exports logos nothing imports (meta, tesla, starbucks, shopify; tech html, css, redux, tailwind, mongodb, threejs, spring, javascript, git). Vite tree-shakes them, so it's cosmetic.
+- `src/assets/index.js` still re-exports images nothing imports (meta, tesla, starbucks, shopify; carrent, jobit, tripguide; tech html, css, redux, tailwind, mongodb, threejs, spring, javascript, git). Vite tree-shakes them, so it's cosmetic.
 - Old-theme assets are unused: `src/assets/city-bg.jpg`, `herobg.png`, `web-hog.png`, the `web/mobile/backend/creator.png` illustrations, and the GLTF models in `public/`.
 - Lint fails on the current tree. Almost all errors are `react/no-unknown-property` on react-three-fiber JSX props (e.g. `args`, `position`, `intensity`) and `react/prop-types`. Fixing it is a config change: configure r3f props in `no-unknown-property` and turn off `prop-types`. Until then, lint isn't usable as a gate.

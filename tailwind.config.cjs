@@ -34,10 +34,11 @@ module.exports = {
         "wood-light": "#ae8a5a",
         "wood-dark": "#4e361e",
         lantern: "#f6d272",
+        hedge: "#2c3d44", // Steam-profile panel title bars
       },
       fontFamily: {
         pixel: ['"Press Start 2P"', "monospace"],
-        sans: ['"Pixelify Sans"', "system-ui", "sans-serif"],
+        sans: ['"Pixel Five"', '"Pixelify Sans"', "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0px 35px 120px -15px #15122b",

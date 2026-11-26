@@ -10,7 +10,10 @@ function HOC() {
             variants={staggerContainer()}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.25 }}
+            // Trigger once the section's top is 15% into the viewport. (A fraction like
+            // amount: 0.25 can never be met by sections taller than 4x the screen,
+            // e.g. the Steam profile on phones, which then stay invisible.)
+            viewport={{ once: true, amount: "some", margin: "0px 0px -15% 0px" }}
             className={`${styles.padding} max-w-7xl mx-auto
             relative z-0`}
         >
