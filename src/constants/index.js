@@ -185,7 +185,7 @@ import {
     realName: "Ignat Miagkov",
     location: "New York, NY",
     summary: "Portfolio Management Engineer at Nuveen. Part-time sheep herder.",
-    careerStart: "2021-05", // Level = full years since this month
+    careerStart: "2023-02", // first full-time job (Bloomberg); Level = full years since this month
     skills: [
       "C++", "Python", "TypeScript", "Unix Shell", "Flask", "Boost", "React", "Node.js",
       "Linux", "Kafka", "Postgres", "Redis", "Jenkins", "Grafana", "Docker", "Humio/Splunk",
