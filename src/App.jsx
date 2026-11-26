@@ -1,4 +1,4 @@
-import { About, Experience, Footer, Hero, Navbar, Tech } from './components';
+import { About, Footer, Hero, Navbar, SteamProfile, Tech } from './components';
 const App = ()  => {
   return (
     <>
@@ -7,10 +7,9 @@ const App = ()  => {
         <Hero />
         <main className="night-sky">
           <About />
-          <Experience />
+          <SteamProfile />
           <Tech />
         </main>
-        {/* <Works /> */}
         {/* <Feedbacks /> */}
         {/* Contact (EmailJS form) is disabled for now. Before re-enabling it:
             restore the "contact" entry in navLinks (src/constants/index.js) and

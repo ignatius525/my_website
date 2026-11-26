@@ -3,9 +3,6 @@ import {
     reactjs,
     nodejs,
     docker,
-    carrent,
-    jobit,
-    tripguide,
     knack,
     bny,
     bb,
@@ -109,87 +106,101 @@ import {
     },
   ];
   
+  // Work experience, rendered as a Steam-style profile (SteamProfile.jsx): each
+  // job is a "game", each resume bullet an "achievement". Oldest first.
+  // - start/end: "YYYY-MM" (end: null = current job). Hours on record are
+  //   estimated from these at 40 hrs/week.
+  // - iconBg: 6-digit hex (picks dark or cream text for the logo tile)
+  // - achievement.icon: a SPRITES key in components/PixelArt.jsx
+  // - achievement.metric: optional headline number -> "Rarest Achievements"
+  // - achievement.team: optional subheading (Bloomberg's two teams)
   const experiences = [
     {
+      game: "Knack Works",
       title: "Software Engineer Intern",
       company_name: "Knack Works Inc.",
       icon: knack,
       iconBg: "#FFFFFF",
-      date: "May 2021 - August 2021",
-      points: [
-        "Created micro-service event driven architecture to automate data ETL and analysis",
-        "Developed service layer application with automated task queue for search utilization",
-        "Performed first-look on large (>500 GB/day) data sets to optimize search task definition",
-        "Integrated service layer into project with Kafka, Redis to communicate with orchestrator",
+      start: "2021-05",
+      end: "2021-08",
+      achievements: [
+        { title: "Event-Driven Architect", icon: "gear", text: "Created micro-service event driven architecture to automate data ETL and analysis" },
+        { title: "Queue Master", icon: "monitor", text: "Developed service layer application with automated task queue for search utilization" },
+        { title: "Big Data Scout", icon: "magnifier", metric: ">500 GB/day", text: "Performed first-look on large (>500 GB/day) data sets to optimize search task definition" },
+        { title: "Message Broker", icon: "bolt", text: "Integrated service layer into project with Kafka, Redis to communicate with orchestrator" },
       ],
     },
     {
+      game: "BNY Mellon",
       title: "Software Engineer Intern",
       company_name: "BNY Mellon",
       icon: bny,
       iconBg: "#E6DEDD",
-      date: "May 2022 - August 2022",
-      points: [
-        "Worked in Agile Environment to build transaction optimization and accounting application responsible for 3 trillion dollars of assets",
-        "Developed reactive broker enrichment micro-service to receive trades through Kafka and automate new broker registration within the transaction manager",
-        "Completed pre-release checks and deploy production services using in-house app engine",
-        "Automated logging for broker enrichment micro-service by posting sub-processes to Oracle Database",
+      start: "2022-05",
+      end: "2022-08",
+      achievements: [
+        { title: "Trillion-Dollar Ledger", icon: "candles", metric: "$3 trillion", text: "Worked in Agile Environment to build transaction optimization and accounting application responsible for 3 trillion dollars of assets" },
+        { title: "Broker Whisperer", icon: "bolt", text: "Developed reactive broker enrichment micro-service to receive trades through Kafka and automate new broker registration within the transaction manager" },
+        { title: "Ship It", icon: "trophy", text: "Completed pre-release checks and deploy production services using in-house app engine" },
+        { title: "Paper Trail", icon: "monitor", text: "Automated logging for broker enrichment micro-service by posting sub-processes to Oracle Database" },
       ],
     },
     {
+      game: "Bloomberg",
       title: "Software Engineer",
       company_name: "Bloomberg LP",
       icon: bb,
       iconBg: "#000000",
-      date: "February 2023 - June 2025",
-      // Optional: bullets grouped by team (rendered with subheadings) instead of `points`.
-      groups: [
-        {
-          name: "Fixed Income & Derivatives Core (FiD)",
-          points: [
-            "Designed and implemented new C++ infrastructure API for loading FI curve metadata using Redis, reducing median load by 40%",
-            "Enhanced securities autocomplete framework for related curves fetching, reducing median latency by 25% for finding related curves for any equity in Bloomberg",
-          ],
-        },
-        {
-          name: "Fixed Income Electronic Trading (FIET)",
-          points: [
-            "Built automated ML forecasting pipeline via PyTorch for detecting anomalous trading activity, reducing median reaction time for undetected issues by 37%",
-            "Created new C++ libraries for sellside dealer entitlement features, consolidating and reducing existing business logic by 60% across all FIET platforms",
-            "Rewrote existing Python reference data pipeline for portfolio calculations using publish-subscribe paradigm, reducing median calculation time by 5 minutes (20%) and preventing future outages",
-            "Built monitoring and stress testing tools using internal trace metrics and Grafana to identify and fix potential bottlenecks in transaction processing",
-          ],
-        },
+      start: "2023-02",
+      end: "2025-06",
+      achievements: [
+        { team: "Fixed Income & Derivatives Core (FiD)", title: "Curve Loader", icon: "cpp", metric: "40% faster loads", text: "Designed and implemented new C++ infrastructure API for loading FI curve metadata using Redis, reducing median load by 40%" },
+        { team: "Fixed Income & Derivatives Core (FiD)", title: "Autocomplete Accelerator", icon: "magnifier", text: "Enhanced securities autocomplete framework for related curves fetching, reducing median latency by 25% for finding related curves for any equity in Bloomberg" },
+        { team: "Fixed Income Electronic Trading (FIET)", title: "Anomaly Hunter", icon: "candles", metric: "37% faster reactions", text: "Built automated ML forecasting pipeline via PyTorch for detecting anomalous trading activity, reducing median reaction time for undetected issues by 37%" },
+        { team: "Fixed Income Electronic Trading (FIET)", title: "Logic Consolidator", icon: "cpp", metric: "60% less logic", text: "Created new C++ libraries for sellside dealer entitlement features, consolidating and reducing existing business logic by 60% across all FIET platforms" },
+        { team: "Fixed Income Electronic Trading (FIET)", title: "Pub-Sub Pipeline", icon: "gear", text: "Rewrote existing Python reference data pipeline for portfolio calculations using publish-subscribe paradigm, reducing median calculation time by 5 minutes (20%) and preventing future outages" },
+        { team: "Fixed Income Electronic Trading (FIET)", title: "Stress Tester", icon: "bolt", text: "Built monitoring and stress testing tools using internal trace metrics and Grafana to identify and fix potential bottlenecks in transaction processing" },
       ],
     },
     {
+      game: "Nuveen",
       title: "Portfolio Management Engineer",
       company_name: "Nuveen · Brooklyn Investment Group",
       icon: nuveen,
       iconBg: "#08262c", // Nuveen brand teal (matches their favicon), not a theme token
-      date: "October 2025 - Present",
-      points: [
-        "Oversee and maintain a sophisticated, automated portfolio management system managing $13 billion in AUM daily",
-        "Engineered an automated tax-neutral deleveraging system that strategically transitions accounts from leveraged extensions (e.g., 200/100) to long-only or target-leverage profiles, optimizing for long-term tax alpha",
-        "Optimized the operational pipeline by implementing automated edge-case detection and resolution tools, reducing manual labor and intervention time by over 15%",
-        "Collaborate directly with Client Success teams to translate complex client requirements into scalable technical solutions, ensuring the automated system meets evolving institutional and retail needs",
+      start: "2025-10",
+      end: null,
+      achievements: [
+        { title: "Shepherd of $13 Billion", icon: "sheep", metric: "$13 billion AUM", text: "Oversee and maintain a sophisticated, automated portfolio management system managing $13 billion in AUM daily" },
+        { title: "Tax Alpha", icon: "candles", text: "Engineered an automated tax-neutral deleveraging system that strategically transitions accounts from leveraged extensions (e.g., 200/100) to long-only or target-leverage profiles, optimizing for long-term tax alpha" },
+        { title: "Edge-Case Hunter", icon: "magnifier", text: "Optimized the operational pipeline by implementing automated edge-case detection and resolution tools, reducing manual labor and intervention time by over 15%" },
+        { title: "Client Whisperer", icon: "trophy", text: "Collaborate directly with Client Success teams to translate complex client requirements into scalable technical solutions, ensuring the automated system meets evolving institutional and retail needs" },
       ],
     },
-    // {
-    //   title: "Full stack Developer",
-    //   company_name: "Meta",
-    //   icon: meta,
-    //   iconBg: "#E6DEDD",
-    //   date: "Jan 2023 - Present",
-    //   points: [
-    //     "Developing and maintaining web applications using React.js and other related technologies.",
-    //     "Collaborating with cross-functional teams including designers, product managers, and other developers to create high-quality products.",
-    //     "Implementing responsive design and ensuring cross-browser compatibility.",
-    //     "Participating in code reviews and providing constructive feedback to other developers.",
-    //   ],
-    // },
   ];
-  
+
+  // Steam-profile header, sidebar and "Favorite Groups" content.
+  const profile = {
+    name: "Ignat",
+    realName: "Ignat Miagkov",
+    location: "New York, NY",
+    summary: "Portfolio Management Engineer at Nuveen. Part-time sheep herder.",
+    careerStart: "2021-05", // Level = full years since this month
+    skills: [
+      "C++", "Python", "TypeScript", "Unix Shell", "Flask", "Boost", "React", "Node.js",
+      "Linux", "Kafka", "Postgres", "Redis", "Jenkins", "Grafana", "Docker", "Humio/Splunk",
+      "GitHub Actions",
+    ],
+    groups: [
+      { name: "College of William & Mary", detail: "BSc Double Major · Computer Science, Chemistry", meta: "Aug 2019 – Dec 2022 · GPA 3.73", place: "Williamsburg, VA" },
+      { name: "University of St Andrews", detail: "Exchange Program · Computer Science, Chemistry", meta: "Jan 2021 – May 2021", place: "St Andrews, UK" },
+    ],
+    friends: [
+      { name: "LinkedIn", glyph: "in", url: "https://www.linkedin.com/in/imiagkov" },
+      { name: "GitHub", glyph: "gh", url: "https://github.com/ignatius525" },
+    ],
+  };
+
   const testimonials = [
     {
       testimonial:
@@ -217,70 +228,30 @@ import {
     },
   ];
   
+  // Projects, shown as the profile's "Workshop" showcase.
+  // status "released" shows links; "coming-soon" shows a placeholder card.
   const projects = [
     {
-      name: "Car Rent",
-      description:
-        "Web-based platform that allows users to search, book, and manage car rentals from various providers, providing a convenient and efficient solution for transportation needs.",
-      tags: [
-        {
-          name: "react",
-          color: "blue-text-gradient",
-        },
-        {
-          name: "mongodb",
-          color: "green-text-gradient",
-        },
-        {
-          name: "tailwind",
-          color: "pink-text-gradient",
-        },
+      name: "llms-gen",
+      tagline: "Generate and monitor llms.txt files for any website",
+      description: "Crawls a site, groups pages into sections, and writes an llms.txt file. Works as a CLI and an SDK, with Playwright for JS-heavy sites and change detection via HTTP headers.",
+      tags: ["TypeScript", "Node.js", "Playwright"],
+      icon: "monitor",
+      status: "released",
+      links: [
+        { label: "GitHub", url: "https://github.com/ignatius525/llms-text-gen" },
+        { label: "npm", url: "https://www.npmjs.com/package/@imiagkov/llms-gen" },
       ],
-      image: carrent,
-      source_code_link: "https://github.com/",
     },
     {
-      name: "Job IT",
-      description:
-        "Web application that enables users to search for job openings, view estimated salary ranges for positions, and locate available jobs based on their current location.",
-      tags: [
-        {
-          name: "react",
-          color: "blue-text-gradient",
-        },
-        {
-          name: "restapi",
-          color: "green-text-gradient",
-        },
-        {
-          name: "scss",
-          color: "pink-text-gradient",
-        },
-      ],
-      image: jobit,
-      source_code_link: "https://github.com/",
-    },
-    {
-      name: "Trip Guide",
-      description:
-        "A comprehensive travel booking platform that allows users to book flights, hotels, and rental cars, and offers curated recommendations for popular destinations.",
-      tags: [
-        {
-          name: "nextjs",
-          color: "blue-text-gradient",
-        },
-        {
-          name: "supabase",
-          color: "green-text-gradient",
-        },
-        {
-          name: "css",
-          color: "pink-text-gradient",
-        },
-      ],
-      image: tripguide,
-      source_code_link: "https://github.com/",
+      name: "AI Crawler Blocker",
+      tagline: "Keep AI scrapers off your site",
+      description: "Coming soon. The repo link goes here once it's pushed.",
+      tags: [],
+      icon: "shield",
+      status: "coming-soon",
+      links: [],
     },
   ];
-  
-  export { services, technologies, experiences, testimonials, projects };
+
+  export { services, technologies, experiences, profile, testimonials, projects };
