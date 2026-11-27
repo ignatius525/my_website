@@ -36,10 +36,15 @@ async function poll() {
   if (polling) return; // a slow poll is still running; skip rather than stack
   polling = true;
   try {
-    await ready;
+    if (!(await ready)) return;
     await store.pollOnce();
-    const now = Date.now() / 1000;
-    const msg = { type: 'snapshot', trains: store.trainsPayload(now), health: store.healthPayload(now) };
+    const now = store.now();
+    const msg = {
+      type: 'snapshot',
+      trains: store.trainsPayload(now),
+      health: store.healthPayload(now),
+      clockOffset: store.clockOffset,
+    };
     const lines = store.linesPayload();
     if (lines.version !== sentVersion) {
       msg.lines = lines;
@@ -53,9 +58,11 @@ async function poll() {
   }
 }
 
-ready = init().catch((err) => {
+// Resolves true once the network is loaded, false if it never will be (the
+// page has been told, and polls become no-ops).
+ready = init().then(() => true, (err) => {
   self.postMessage({ type: 'error', message: `startup failed: ${(err && err.message) || err}`, fatal: true });
-  throw err;
+  return false;
 });
 
 self.addEventListener('message', (e) => {

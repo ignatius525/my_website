@@ -25,8 +25,9 @@ import {
 import { basemapStyle, theme } from './theme.js';
 
 // MapLibre's own worker, served from this origin as a module: without this it
-// falls back to a blob: URL, which the CSP (worker-src via script-src 'self')
-// does not allow.
+// falls back to a blob: URL, which the CSP (worker-src 'self') does not allow.
+// vite.config.js emits it as .js, not .mjs, so it is served with a JavaScript
+// MIME type (module workers require one, and nosniff is on).
 setWorkerUrl(maplibreWorkerUrl);
 
 const zoomRamp = (stops) => ['interpolate', ['linear'], ['zoom'], ...stops.flat()];
@@ -152,6 +153,8 @@ function applyParallelOffset(map, coords, tr, spacing) {
 }
 
 const KX_RATIO = Math.cos((40.73 * Math.PI) / 180);
+// Trains whose route has no colour of their own (a route new since the export).
+const FALLBACK_COLOUR = '#6D6E71';
 
 /* ----------------------------------------------------------- controller -- */
 
@@ -178,12 +181,40 @@ export class SubwayMapController {
     this.ready = false;
     this.destroyed = false;
     this.lastPoll = 0;
+    // Seconds to add to Date.now() to match the feeds' clock (from the worker).
+    this.clockOffset = 0;
+    this.sheepColours = new Set();
+    // Under reduced motion, trains are redrawn once per poll instead of
+    // creeping along every second.
+    this.tickMs = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? POLL_INTERVAL_MS : theme.animation.tickMs;
   }
+
+  now() { return Date.now() / 1000 + this.clockOffset; }
 
   /** Create the map and the engine. Resolves once the first data is drawn. */
   async start() {
     const th = theme;
-    const map = new MapLibreMap({
+    let map;
+    try {
+      map = this.createMap(th);
+    } catch (err) {
+      // MapLibre throws here when WebGL 2 is unavailable.
+      throw Object.assign(err instanceof Error ? err : new Error(String(err)), { webgl: true });
+    }
+    this.map = map;
+    map.touchZoomRotate.disableRotation();
+    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
+    const fs = new FullscreenControl({ container: this.fullscreenTarget });
+    map.addControl(fs, 'top-right');
+    fs.on('fullscreenstart', () => map.cooperativeGestures.disable());
+    fs.on('fullscreenend', () => map.cooperativeGestures.enable());
+    map.on('error', (e) => console.warn('map:', e && e.error ? e.error.message : e));
+    return this.startEngine(map);
+  }
+
+  createMap(th) {
+    return new MapLibreMap({
       container: this.container,
       style: basemapStyle,
       center: th.basemap.center,
@@ -204,15 +235,9 @@ export class SubwayMapController {
       // index.css): a touch of the site's pixel look, and cheaper to draw.
       pixelRatio: Math.min(window.devicePixelRatio || 1, 1),
     });
-    this.map = map;
-    map.touchZoomRotate.disableRotation();
-    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    const fs = new FullscreenControl({ container: this.fullscreenTarget });
-    map.addControl(fs, 'top-right');
-    fs.on('fullscreenstart', () => map.cooperativeGestures.disable());
-    fs.on('fullscreenend', () => map.cooperativeGestures.enable());
-    map.on('error', (e) => console.warn('map:', e && e.error ? e.error.message : e));
+  }
 
+  async startEngine(map) {
     const worker = new Worker(new URL('../engine/worker.js', import.meta.url), { type: 'module' });
     this.worker = worker;
     const init = new Promise((resolve, reject) => {
@@ -259,7 +284,7 @@ export class SubwayMapController {
       this.pollTimer = setInterval(() => this.poll(), POLL_INTERVAL_MS);
     }, firstIn);
     this.tick();
-    this.tickTimer = setInterval(() => this.tick(), theme.animation.tickMs);
+    this.tickTimer = setInterval(() => this.tick(), this.tickMs);
   }
 
   poll() {
@@ -291,6 +316,7 @@ export class SubwayMapController {
       this.linePaths = msg.lines.features;
       this.rebuildLines();
     }
+    this.clockOffset = Number(msg.clockOffset) || 0;
     this.enrich(msg.trains);
     this.health = msg.health;
     this.error = msg.health.ok ? '' : 'Some MTA feeds are failing right now.';
@@ -309,7 +335,9 @@ export class SubwayMapController {
         const dy = via[i][1] - via[i - 1][1];
         cum.push(cum[i - 1] + Math.hypot(dx, dy));
       }
-      const color = this.routeColor(p.route_id) || p.route_color;
+      // By display route, so a 6X sheep wears the 6's colour, like its line.
+      let color = this.routeColor(p.line || p.route_id) || p.route_color;
+      if (!this.sheepColours.has(color)) color = FALLBACK_COLOUR;
       return {
         via, cum, seg: 0,
         offset: p.offset || 0,
@@ -341,9 +369,11 @@ export class SubwayMapController {
   }
 
   routeColor(routeId) {
+    // hasOwn: route ids come from the feed, and "constructor" must not
+    // resolve to Object.prototype.constructor.
     const over = theme.lines.colorOverrides;
-    if (over[routeId]) return over[routeId];
-    const r = this.routes && this.routes[routeId];
+    if (Object.hasOwn(over, routeId)) return over[routeId];
+    const r = this.routes && Object.hasOwn(this.routes, routeId) ? this.routes[routeId] : null;
     return r ? r.color : null;
   }
 
@@ -351,7 +381,7 @@ export class SubwayMapController {
   tick() {
     const { map } = this;
     if (!map || !this.ready) return;
-    const t = Date.now() / 1000;
+    const t = this.now();
     const spacing = rampAt(theme.lines.parallel.spacing, map.getZoom());
     const features = new Array(this.trains.length);
     for (let i = 0; i < this.trains.length; i++) {
@@ -359,6 +389,8 @@ export class SubwayMapController {
       let pt = pointAt(tr, progressOf(tr, t)) || tr.via[0];
       pt = applyParallelOffset(map, pt, tr, spacing);
       features[i] = { type: 'Feature', geometry: { type: 'Point', coordinates: pt }, properties: tr.props };
+      // An open popup follows its train.
+      if (this.popup && this.popupKey === tr.props.key) this.popup.setLngLat(pt);
     }
     const src = map.getSource('trains');
     if (src) src.setData({ type: 'FeatureCollection', features });
@@ -395,7 +427,7 @@ export class SubwayMapController {
       ready: this.ready,
       total: this.trains.length,
       shown,
-      ageSeconds: this.lastUpdate ? Math.max(0, Math.round(Date.now() / 1000 - this.lastUpdate)) : null,
+      ageSeconds: this.lastUpdate ? Math.max(0, Math.round(this.now() - this.lastUpdate)) : null,
       feeds: this.health ? this.health.feeds.map((f) => ({
         id: f.feed_id,
         label: f.feed_id.replace('nyct%2Fgtfs', '').replace(/^-/, '').toUpperCase() || '1-7',
@@ -495,7 +527,8 @@ export class SubwayMapController {
       colorExpr.push(rid, c);
       colours.add(c);
     }
-    colorExpr.push('#6D6E71');
+    colorExpr.push(FALLBACK_COLOUR);
+    colours.add(FALLBACK_COLOUR);
 
     map.addSource('network', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({
@@ -574,6 +607,7 @@ export class SubwayMapController {
     });
 
     for (const colour of colours) {
+      this.sheepColours.add(colour);
       for (const facing of ['r', 'l']) {
         map.addImage(`sheep-${colour}-${facing}`,
           makeSheepImage(colour, tr.outline, facing === 'l' ? 'left' : 'right'), { pixelRatio: 2 });
@@ -689,9 +723,11 @@ export class SubwayMapController {
     if (p.train_id) line(String(p.train_id), 'subway-popup-muted');
 
     if (this.popup) this.popup.remove();
+    this.popupKey = p.key;
     this.popup = new Popup({ closeButton: false, offset: 12, maxWidth: '260px' })
       .setLngLat(feature.geometry.coordinates)
       .setDOMContent(el)
       .addTo(this.map);
+    this.popup.on('close', () => { this.popup = null; this.popupKey = null; });
   }
 }

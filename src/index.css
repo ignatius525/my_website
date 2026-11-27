@@ -269,6 +269,12 @@ body {
   image-rendering: pixelated;
 }
 /* Fullscreen takes the map, HUD and legend together. */
+.subway-shell:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: none !important;
+  box-shadow: none;
+}
 .subway-shell:fullscreen {
   width: 100vw !important;
   height: 100vh !important;

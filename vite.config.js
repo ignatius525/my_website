@@ -39,6 +39,18 @@ export default defineConfig({
   plugins: [react()],
   // The subway engine runs as a module worker (src/subway/engine/worker.js).
   worker: { format: 'es' },
+  build: {
+    rollupOptions: {
+      output: {
+        // MapLibre's worker is imported with ?url as a .mjs asset. Emit it as
+        // .js so any host serves it with a JavaScript MIME type: module
+        // workers refuse anything else, and nosniff is on.
+        assetFileNames: (asset) => (/\.mjs$/.test(asset.name || '')
+          ? 'assets/[name]-[hash].js'
+          : 'assets/[name]-[hash][extname]'),
+      },
+    },
+  },
   preview: {
     headers: securityHeaders,
   },

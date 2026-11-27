@@ -34,14 +34,31 @@ export const feedUrl = (feedId) => `${FEED_BASE}/${feedId}`;
 export const POLL_INTERVAL_MS = 60_000;
 export const HTTP_TIMEOUT_MS = 25_000;
 export const HTTP_RETRIES = 2;
-// The largest live feed is ~45 kB gzipped (~600 kB decoded). Anything far
-// beyond that is not a feed, so it is refused before it is decoded.
-export const MAX_FEED_BYTES = 8 * 1024 * 1024;
+// The largest live feed is ~45 kB gzipped (~600 kB decoded), carrying ~300
+// trains. Anything far beyond that is not a feed: refusing it bounds the
+// decode cost of a hostile or broken response (an 8 MB one decoded to 524k
+// trains and 455 MB of heap in review).
+export const MAX_FEED_BYTES = 2 * 1024 * 1024;
+export const MAX_TRAINS_PER_FEED = 3000;
 
 // A feed whose header timestamp is older than this is reported unhealthy.
 export const FEED_STALE_AFTER = 180;
 // Drop a train we have not seen in any feed for this long.
 export const TRAIN_EXPIRY = 300;
+
+// The Python server polled nonstop; the browser pauses while the map is off
+// screen or the tab is hidden. Cross-poll memory is only valid between
+// consecutive polls, so after a longer gap it is discarded and the next poll
+// starts fresh, as a newly started server would. Without this a resumed map
+// drew ~20% of trains on straight chords from stops they left minutes (or,
+// since NYCT train ids repeat daily, days) ago.
+export const RESUME_GAP = 150;
+
+// If the visitor's clock disagrees with the feeds' header timestamps by more
+// than this, positions are computed on the feeds' clock instead (the Python
+// served its own server time to the page for the same reason). Feeds are
+// normally 0-30 s old when fetched, so smaller differences are left alone.
+export const CLOCK_SKEW_TOLERANCE = 90;
 
 // ------------------------------------------------------------ active track ----
 

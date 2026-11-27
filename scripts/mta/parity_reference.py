@@ -14,6 +14,13 @@ from mta_map import api, config, network
 from mta_map.feeds import parse_feed
 from mta_map.model import FeedResult
 from mta_map.store import Store
+from mta_map.tracker import Tracker
+
+# Mirrors RESUME_GAP in src/subway/engine/config.js: the browser pauses while
+# the map is off screen and starts its cross-poll memory afresh after a longer
+# gap. The Python server never pauses, so this is the one deliberate
+# difference; mirroring it lets snapshots from separate captures share a run.
+RESUME_GAP = 150
 
 snap_dirs = [Path(p) for p in sys.argv[2:]]
 out_path = Path(sys.argv[1])
@@ -26,8 +33,13 @@ def lines(display):
 
 steps = []
 scheduled = lines(store.display)
+last = None
 for d in snap_dirs:
     wall = json.loads((d / "captured_at.json").read_text())["wall"]
+    if last is not None and wall - last > RESUME_GAP:
+        store.tracker = Tracker()
+        store._by_feed.clear()
+    last = wall
     results = []
     for fid in config.SUBWAY_FEEDS:
         f = d / (fid.replace("%2F", "_") + ".pb")

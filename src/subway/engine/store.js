@@ -8,8 +8,8 @@
 
 import { ActiveTrack } from './active.js';
 import {
-  ACTIVE_ONLY, FEED_STALE_AFTER, feedUrl, HTTP_RETRIES, HTTP_TIMEOUT_MS,
-  MAX_FEED_BYTES, SUBWAY_FEEDS,
+  ACTIVE_ONLY, CLOCK_SKEW_TOLERANCE, FEED_STALE_AFTER, feedUrl, HTTP_RETRIES,
+  HTTP_TIMEOUT_MS, MAX_FEED_BYTES, RESUME_GAP, SUBWAY_FEEDS,
 } from './config.js';
 import { bestArrival, parseFeed } from './gtfsrt.js';
 import { locate, normaliseTarget } from './locator.js';
@@ -74,17 +74,43 @@ export class Store {
       });
     }
     this.snapshot = null;
+    this.lastIngest = 0;
+    // Seconds to add to the local clock to match the feeds' (see CLOCK_SKEW_TOLERANCE).
+    this.clockOffset = 0;
   }
+
+  /** The current time on the clock positions are computed against. */
+  now() { return Date.now() / 1000 + this.clockOffset; }
 
   /** Poll every feed once and rebuild the snapshot. */
   async pollOnce(fetchImpl = fetch) {
     const results = await Promise.all(Object.keys(SUBWAY_FEEDS).map((f) => fetchFeed(f, fetchImpl)));
-    this.ingest(results, Date.now() / 1000);
+    // How far the local clock is from the feeds': median of header timestamp
+    // minus fetch time across the feeds that answered.
+    const diffs = results.filter((r) => r.ok && r.timestamp)
+      .map((r) => r.timestamp - r.fetched_at).sort((a, b) => a - b);
+    if (diffs.length) {
+      const median = diffs[Math.floor(diffs.length / 2)];
+      this.clockOffset = Math.abs(median) > CLOCK_SKEW_TOLERANCE ? median : 0;
+    }
+    this.ingest(results, this.now(), Date.now() / 1000);
     return this.snapshot;
   }
 
-  /** Fold feed results into the snapshot at time `now` (seconds). */
-  ingest(results, now) {
+  /**
+   * Fold feed results into the snapshot at time `now` (seconds, feed clock).
+   * `wall` is the local clock, used only to detect a pause: the feed-clock
+   * offset can change between polls, which must not read as a gap. Replays
+   * pass just `now`.
+   */
+  ingest(results, now, wall = now) {
+    if (this.lastIngest && wall - this.lastIngest > RESUME_GAP) {
+      // Resuming after a pause: forget per-train memory and carried-over
+      // trains rather than reconcile against a stale picture.
+      this.tracker = new Tracker();
+      this.byFeed.clear();
+    }
+    this.lastIngest = wall;
     for (const r of results) {
       const h = this.health.get(r.feed_id);
       h.fetched_at = r.fetched_at;

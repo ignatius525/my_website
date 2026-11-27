@@ -95,7 +95,9 @@ const SubwayMap = () => {
 
     ctrl.start().catch((err) => {
       console.warn('subway map:', err);
-      setFatal('The live map could not start in this browser (it needs WebGL 2).');
+      setFatal(err && err.webgl
+        ? 'The live map could not start in this browser (it needs WebGL 2).'
+        : 'The live map could not load. Try refreshing the page.');
     });
 
     return () => {
@@ -124,8 +126,8 @@ const SubwayMap = () => {
         </div>
       )}
       {hud.error && !fatal && (
-        <p role="status" className="absolute top-3 right-14 z-10 max-w-[45%] bg-night/90 border-2 border-horizon
-          text-wool text-[12px] px-2 py-1">
+        <p role="status" className="absolute z-10 bg-night/90 border-2 border-horizon text-wool text-[12px] px-2 py-1
+          left-3 right-14 top-[92px] sm:left-auto sm:top-3 sm:max-w-[45%]">
           {hud.error}
         </p>
       )}

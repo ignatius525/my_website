@@ -22,6 +22,8 @@
  *   NyctStopTimeUpdate scheduled_track=1 actual_track=2
  */
 
+import { MAX_TRAINS_PER_FEED } from './config.js';
+
 // GTFS-RT VehicleStopStatus. The spec default is IN_TRANSIT_TO, which matters:
 // 42% of live vehicles omit current_status entirely.
 export const INCOMING_AT = 0;
@@ -30,7 +32,9 @@ export const IN_TRANSIT_TO = 2;
 
 const DIRECTION = { 1: 'N', 2: 'E', 3: 'S', 4: 'W' };
 
-const utf8 = new TextDecoder('utf-8', { fatal: true });
+// Not fatal: proto2 strings are not UTF-8-validated by the Python protobuf
+// runtime, so one bad byte must not drop a feed it would have accepted.
+const utf8 = new TextDecoder('utf-8');
 
 class Reader {
   constructor(bytes, start = 0, end = bytes.length) {
@@ -276,6 +280,9 @@ export function parseFeed(bytes, feedId) {
 
   const headerTs = msg.header.timestamp;
   const trains = [];
+  if (vehicles.size > MAX_TRAINS_PER_FEED) {
+    throw new Error(`${feedId}: ${vehicles.size} vehicles is not a plausible feed`);
+  }
   for (const [tripId, vehicle] of vehicles) {
     const trip = vehicle.trip || { trip_id: '', route_id: '', nyct: null };
     const ext = trip.nyct || { train_id: '', is_assigned: false, direction: 0 };
