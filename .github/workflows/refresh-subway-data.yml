@@ -106,6 +106,9 @@ jobs:
           NEW: ${{ runner.temp }}/network/network.json
         run: |
           cp "$NEW" src/subway/data/network.json
+          # Re-check the handed-over file with this clean checkout's own engine
+          # (repo code, no dependencies) before anything is committed.
+          node scripts/mta/check_network.mjs
           if git diff --quiet -- src/subway/data/network.json; then
             echo "Schedule unchanged; nothing to commit."
             exit 0
