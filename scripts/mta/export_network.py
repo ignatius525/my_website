@@ -2,17 +2,22 @@
 
 The live map (src/subway/) runs the fun-mta pipeline in a Web Worker, so the
 static network it needs (stops, routes, stop-pair segments and the track edges
-used to bundle parallel lines) is built once here by the original Python code
-and shipped as JSON. Nothing in this file re-implements that build; it only
-re-shapes `mta_map.network.Network` for the browser.
+used to bundle parallel lines) is built here by the original Python code and
+shipped as JSON. That code is vendored in scripts/mta/mta_map/ (verbatim from
+fun-mta); nothing in this file re-implements the build, it only re-shapes
+`mta_map.network.Network` for the browser.
 
-Usage (needs the fun-mta package, Python >= 3.10):
+Runs nightly in .github/workflows/refresh-subway-data.yml. By hand
+(Python >= 3.10):
 
-    pip install -e /path/to/fun-mta
-    python scripts/mta/export_network.py            # -> src/subway/data/network.json
+    python -m venv .venv-mta
+    .venv-mta/bin/pip install --require-hashes -r scripts/mta/requirements.txt
+    .venv-mta/bin/python scripts/mta/export_network.py --fresh
 
-Rerun when MTA publishes a new static GTFS (the map keeps working on an older
-export: stop pairs missing from it fall back to graph or straight-line paths).
+The output is deterministic (no timestamps), so if MTA has not published a new
+schedule the file is rewritten byte for byte and git sees no change. An export
+that loses more than 20% of the previous one's stops, segments or edges is
+refused rather than published (override with --allow-shrink).
 
 Ordering is part of the format. The browser port walks track edges in exactly
 the order `Network.build_track_lines` does, because walk order decides which
@@ -30,14 +35,23 @@ from __future__ import annotations
 
 import argparse
 import json
-import time
+import sys
 from pathlib import Path
 
-from mta_map import network
-from mta_map.network import _quantise
+# The vendored package next to this file, ahead of any installed fun-mta.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from mta_map import network, static_gtfs  # noqa: E402
+from mta_map.network import _quantise  # noqa: E402
 
 SCHEMA = 1
 DEFAULT_OUT = Path(__file__).resolve().parents[2] / "src" / "subway" / "data" / "network.json"
+# Sanity floors for any export, well under the fall 2026 network
+# (1488 stops, 1149 segments, ~9000 edges, 29 routes).
+MIN_COUNTS = {"stops": 1000, "segments": 800, "edges": 6000, "routes": 20}
+CORE_ROUTES = {"1", "2", "3", "4", "5", "6", "7", "A", "C", "E", "B", "D", "F", "M",
+               "G", "J", "Z", "L", "N", "Q", "R", "W", "SI"}
+MAX_SHRINK = 0.8
 
 
 def _first_is(pair, a) -> int:
@@ -54,10 +68,14 @@ def export(net: network.Network) -> dict:
         r.route_id: [r.short_name, r.long_name, r.color, r.text_color, r.sort_order]
         for r in net.routes.values()
     }
+    # Sorted: fun-mta builds this table by iterating a set of stop-id strings,
+    # whose order changes with Python's per-process hash seed. The order feeds
+    # the engine's tie-breaks (graph search, predecessor guesses), so it is
+    # fixed here -- and parity_reference.py applies the same sort.
     segments = [
         [seg.from_stop, seg.to_stop, seg.length_m, sorted(seg.routes),
          [[x, y] for x, y in seg.via]]
-        for seg in net.segments.values()
+        for seg in sorted(net.segments.values(), key=lambda s: (s.from_stop, s.to_stop))
     ]
 
     # Mirror the loop in Network.build_track_lines (active=None) exactly.
@@ -92,7 +110,6 @@ def export(net: network.Network) -> dict:
     return {
         "schema": SCHEMA,
         "gtfs_version": net.version,
-        "built_at": int(time.time()),
         "stops": stops,
         "routes": routes,
         "segments": segments,
@@ -100,20 +117,57 @@ def export(net: network.Network) -> dict:
     }
 
 
+def validate(data: dict, previous: dict | None, allow_shrink: bool) -> list[str]:
+    """Reasons not to publish this export (empty if it looks sound)."""
+    problems = []
+    for key, floor in MIN_COUNTS.items():
+        if len(data[key]) < floor:
+            problems.append(f"only {len(data[key])} {key} (expected at least {floor})")
+    missing = CORE_ROUTES - set(data["routes"])
+    if missing:
+        problems.append(f"routes missing: {', '.join(sorted(missing))}")
+    if previous and previous.get("schema") == SCHEMA and not allow_shrink:
+        for key in ("stops", "segments", "edges"):
+            old, new = len(previous.get(key, ())), len(data[key])
+            if old and new < old * MAX_SHRINK:
+                problems.append(f"{key} shrank from {old} to {new}")
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("-o", "--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--fresh", action="store_true",
+                        help="re-download the static GTFS instead of using a cached copy (up to 7 days old)")
+    parser.add_argument("--allow-shrink", action="store_true",
+                        help="publish even if the network shrank by more than 20%%")
     args = parser.parse_args()
+
+    if args.fresh:
+        static_gtfs.ensure_gtfs(force=True)
     # Round-trip through the cache format so the export matches what the
     # server would load (segment lengths are rounded in the cache).
     net = network.Network.from_json(network.load().to_json())
     data = export(net)
+
+    previous = None
+    if args.out.exists():
+        try:
+            previous = json.loads(args.out.read_text())
+        except json.JSONDecodeError:
+            previous = None
+    problems = validate(data, previous, args.allow_shrink)
+    if problems:
+        print("refusing to write the export:\n  " + "\n  ".join(problems), file=sys.stderr)
+        return 1
+
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(data, separators=(",", ":")))
+    changed = not previous or previous.get("gtfs_version") != data["gtfs_version"]
     print(
         f"{args.out}: {len(data['stops'])} stops, {len(data['segments'])} segments, "
         f"{len(data['edges'])} edges, {args.out.stat().st_size / 1e6:.2f} MB "
-        f"(GTFS {data['gtfs_version']})"
+        f"(GTFS {data['gtfs_version']}{', new' if changed else ', unchanged'})"
     )
     return 0
 

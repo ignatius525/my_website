@@ -1,0 +1,68 @@
+# Nightly refresh of the live subway map's static network
+# (src/subway/data/network.json), built from MTA's static GTFS by the vendored
+# fun-mta code in scripts/mta/.
+#
+# MTA republishes the schedule every few weeks, not daily, and the export is
+# deterministic, so most nights this ends with "unchanged" and commits nothing.
+# When the schedule does change, the new data is validated (sanity floors, no
+# >20% shrink, then loaded into the browser engine) and committed straight to
+# main, which triggers the Amplify deploy.
+#
+# Run it by hand from the Actions tab ("Run workflow").
+name: Refresh subway schedule data
+
+on:
+  schedule:
+    # 05:00 UTC = midnight in New York in winter (EST), 1 a.m. in summer (EDT).
+    # GitHub cron is UTC-only and can start late when its runners are busy.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+# Only this job writes, and only to the repo's contents.
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-subway-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Actions pinned to full commit SHAs (tags can be moved).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Install exporter dependencies (hash-pinned)
+        run: python -m pip install --require-hashes -r scripts/mta/requirements.txt
+
+      - name: Build the network from the current static GTFS
+        run: python scripts/mta/export_network.py --fresh
+
+      - name: Check the browser engine can load it
+        run: node scripts/mta/check_network.mjs
+
+      - name: Commit if MTA published a new schedule
+        run: |
+          if git diff --quiet -- src/subway/data/network.json; then
+            echo "Schedule unchanged; nothing to commit."
+            exit 0
+          fi
+          # The version string comes from MTA's feed_info.txt; keep only safe characters.
+          version=$(python -c "import json; print(json.load(open('src/subway/data/network.json'))['gtfs_version'])" | tr -cd 'A-Za-z0-9._-' | cut -c1-80)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/subway/data/network.json
+          git commit -m "Refresh subway schedule data (GTFS ${version})"
+          git push origin HEAD:main

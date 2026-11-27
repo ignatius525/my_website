@@ -25,7 +25,10 @@ RESUME_GAP = 150
 snap_dirs = [Path(p) for p in sys.argv[2:]]
 out_path = Path(sys.argv[1])
 
-net = network.Network.from_json(network.load().to_json())
+# Segments in the exporter's canonical order (see export_network.py).
+data = network.load().to_json()
+data["segments"].sort(key=lambda s: (s[0], s[1]))
+net = network.Network.from_json(data)
 store = Store(net)
 
 def lines(display):
