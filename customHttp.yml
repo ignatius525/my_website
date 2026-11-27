@@ -8,11 +8,14 @@
 customHeaders:
   - pattern: '**'
     headers:
-      # Only load code/data from this site (no third parties).
+      # Only load code from this site. The only third-party origins are data
+      # sources for the live subway map (src/subway/), fetched, never executed:
+      # MTA's realtime feeds and OpenFreeMap's tiles and label fonts.
       # style-src needs 'unsafe-inline' for runtime styles from animation/3D libs.
       # blob:/data: are needed by three.js loaders for textures and embedded buffers.
+      # worker-src 'self': MapLibre's worker and the subway engine are same-origin files.
       - key: 'Content-Security-Policy'
-        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        value: "default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: data: https://api-endpoint.mta.info https://tiles.openfreemap.org; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
       # Force HTTPS for a year. Add '; includeSubDomains' only once every subdomain serves HTTPS.
       - key: 'Strict-Transport-Security'
         value: 'max-age=31536000'

@@ -296,8 +296,8 @@ const Workshop = () => (
                   <a
                     key={l.url}
                     href={l.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    // In-page anchors (#subway) stay in this tab; anything else opens a new one.
+                    {...(l.url.startsWith('#') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                     className="bg-plum hover:bg-horizon text-white-100 text-[15px] px-3 py-1 pixel-frame"
                     style={{ '--px': '2px', '--frame': '#ffc666' }}
                   >

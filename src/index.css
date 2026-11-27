@@ -261,3 +261,84 @@ body {
   background-size: 64px 24px;
   background-position: bottom left;
 }
+
+/* ---- Live subway map (src/subway/) -------------------------------------- */
+
+/* The map renders one device pixel per CSS pixel; upscale it crisp. */
+.subway-map canvas {
+  image-rendering: pixelated;
+}
+/* Fullscreen takes the map, HUD and legend together. */
+.subway-shell:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: none !important;
+  box-shadow: none;
+}
+.subway-map .maplibregl-ctrl-group {
+  background: #1c1938;
+  border-radius: 0;
+  box-shadow: 0 0 0 3px #966636;
+}
+.subway-map .maplibregl-ctrl-group button + button {
+  border-top: 2px solid #392854;
+}
+.subway-map .maplibregl-ctrl-group button:hover {
+  background-color: #392854;
+}
+/* MapLibre's control glyphs are dark SVGs; turn them cream. */
+.subway-map .maplibregl-ctrl-icon {
+  filter: invert(92%) sepia(12%) saturate(400%) hue-rotate(350deg);
+}
+.subway-map .maplibregl-ctrl-attrib,
+.subway-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgba(28, 25, 56, 0.85);
+  color: #b9aed0;
+  border-radius: 0;
+  font-size: 11px;
+}
+.subway-map .maplibregl-ctrl-attrib a {
+  color: #ffc666;
+}
+.subway-map .maplibregl-ctrl-attrib-button {
+  filter: invert(92%);
+  background-color: transparent;
+}
+.subway-map .maplibregl-cooperative-gesture-screen {
+  background: rgba(21, 18, 43, 0.6);
+  color: #f6eac6;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  text-align: center;
+}
+.subway-map .maplibregl-popup-content {
+  background: #1c1938;
+  color: #f6eac6;
+  border-radius: 0;
+  padding: 10px 12px;
+  box-shadow: 0 0 0 3px #966636;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.subway-map .maplibregl-popup-tip {
+  display: none;
+}
+.subway-popup-head {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.subway-popup-bullet {
+  display: inline-block;
+  min-width: 22px;
+  padding: 3px 4px;
+  margin-right: 4px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  color: #15122b;
+  text-align: center;
+}
+.subway-popup-muted {
+  color: #b9aed0;
+  font-size: 12px;
+}
