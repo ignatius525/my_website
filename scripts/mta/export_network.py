@@ -17,7 +17,9 @@ Runs nightly in .github/workflows/refresh-subway-data.yml. By hand
 The output is deterministic (no timestamps), so if MTA has not published a new
 schedule the file is rewritten byte for byte and git sees no change. An export
 that loses more than 20% of the previous one's stops, segments or edges is
-refused rather than published (override with --allow-shrink).
+refused rather than published (override with --allow-shrink), with exit
+status 3 so the nightly job can tell a refusal (don't retry) from a failed
+download (retry).
 
 Ordering is part of the format. The browser port walks track edges in exactly
 the order `Network.build_track_lines` does, because walk order decides which
@@ -52,6 +54,7 @@ MIN_COUNTS = {"stops": 1000, "segments": 800, "edges": 6000, "routes": 20}
 CORE_ROUTES = {"1", "2", "3", "4", "5", "6", "7", "A", "C", "E", "B", "D", "F", "M",
                "G", "J", "Z", "L", "N", "Q", "R", "W", "SI"}
 MAX_SHRINK = 0.8
+EXIT_REFUSED = 3
 
 
 def _first_is(pair, a) -> int:
@@ -159,7 +162,7 @@ def main() -> int:
     problems = validate(data, previous, args.allow_shrink)
     if problems:
         print("refusing to write the export:\n  " + "\n  ".join(problems), file=sys.stderr)
-        return 1
+        return EXIT_REFUSED
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(data, separators=(",", ":")))

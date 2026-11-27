@@ -76,11 +76,15 @@ export class Network {
     for (const [id, [name, lon, lat, parent]] of Object.entries(data.stops)) {
       this.stops.set(id, { stop_id: id, name, lon, lat, parent, point: [lon, lat] });
     }
+    // Colours end up in map styles and legend CSS, and the data file is
+    // rebuilt by a nightly job from a third-party zip: accept only #rrggbb.
+    const hex = (c, fallback) => (typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c) ? c : fallback);
     this.routes = new Map();
     for (const [id, [short, long, color, text, sort]] of Object.entries(data.routes)) {
       this.routes.set(id, {
-        route_id: id, short_name: short, long_name: long,
-        color, text_color: text, sort_order: sort ?? 9999,
+        route_id: id, short_name: String(short), long_name: String(long),
+        color: hex(color, '#6D6E71'), text_color: hex(text, '#FFFFFF'),
+        sort_order: Number.isFinite(sort) ? sort : 9999,
       });
     }
 
