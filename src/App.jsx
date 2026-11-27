@@ -1,4 +1,4 @@
-import { About, Footer, Hero, Navbar, SteamProfile, Tech } from './components';
+import { About, Footer, Hero, Navbar, SteamProfile, Subway, Tech } from './components';
 const App = ()  => {
   return (
     <>
@@ -8,6 +8,7 @@ const App = ()  => {
         <main className="night-sky">
           <About />
           <SteamProfile />
+          <Subway />
           <Tech />
         </main>
         {/* <Feedbacks /> */}

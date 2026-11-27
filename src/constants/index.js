@@ -26,6 +26,10 @@ import {
       id: "work",
       title: "Work",
     },
+    {
+      id: "subway",
+      title: "Subway",
+    },
     // Contact section is disabled (see App.jsx); restore this when re-enabling it.
     // {
     //   id: "contact",
@@ -230,7 +234,19 @@ import {
   
   // Projects, shown as the profile's "Workshop" showcase.
   // status "released" shows links; "coming-soon" shows a placeholder card.
+  // A link url starting with "#" scrolls within the page (no new tab).
   const projects = [
+    {
+      name: "Live NYC Subway Map",
+      tagline: "Every subway train in the city, live",
+      description: "The MTA's realtime feeds carry no coordinates, so each train is placed by reconstructing its position along the track from its next stop and predicted arrival. Runs entirely in the browser.",
+      tags: ["JavaScript", "MapLibre", "GTFS-realtime", "Python"],
+      icon: "sheep",
+      status: "released",
+      links: [
+        { label: "Open the live map", url: "#subway" },
+      ],
+    },
     {
       name: "llms-gen",
       tagline: "Generate and monitor llms.txt files for any website",

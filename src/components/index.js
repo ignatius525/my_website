@@ -4,6 +4,7 @@ import Navbar from './Navbar';
 import About from './About';
 import Tech from './Tech';
 import SteamProfile from './SteamProfile';
+import Subway from './Subway';
 import Feedbacks from './Feedbacks';
 import Contact from './Contact';
 import Footer from './Footer';
@@ -14,6 +15,7 @@ export {
   About,
   Tech,
   SteamProfile,
+  Subway,
   Feedbacks,
   Contact,
   EarthCanvas, 

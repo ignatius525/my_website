@@ -13,10 +13,12 @@ const securityHeaders = {
   'Content-Security-Policy': [
     "default-src 'self'",
     "script-src 'self'",
+    "worker-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self' blob: data:",
+    // Live subway map data (src/subway/): MTA feeds, OpenFreeMap tiles + fonts.
+    "connect-src 'self' blob: data: https://api-endpoint.mta.info https://tiles.openfreemap.org",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -35,6 +37,20 @@ const securityHeaders = {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // The subway engine runs as a module worker (src/subway/engine/worker.js).
+  worker: { format: 'es' },
+  build: {
+    rollupOptions: {
+      output: {
+        // MapLibre's worker is imported with ?url as a .mjs asset. Emit it as
+        // .js so any host serves it with a JavaScript MIME type: module
+        // workers refuse anything else, and nosniff is on.
+        assetFileNames: (asset) => (/\.mjs$/.test(asset.name || '')
+          ? 'assets/[name]-[hash].js'
+          : 'assets/[name]-[hash][extname]'),
+      },
+    },
+  },
   preview: {
     headers: securityHeaders,
   },
